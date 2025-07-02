@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
-    <meta charset="UTF-8">که
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>آنالیز دانه بندی سنگ شکن</title>
     <!-- اتصال به Tailwind CSS برای استایل‌دهی -->
@@ -126,7 +126,7 @@
     <!-- مودال نمایش خطا -->
     <div id="error-modal" class="modal-overlay hidden opacity-0">
         <div class="modal-content opacity-0">
-            <h3 class="text-xl font-bold text-red-600 dark:text-red-400 mb-4">خطا</h3>
+            <h3 id="error-title" class="text-xl font-bold text-red-600 dark:text-red-400 mb-4">خطا</h3>
             <p id="error-message" class="mb-6"></p>
             <button id="close-modal-btn" class="btn btn-primary w-full">متوجه شدم</button>
         </div>
@@ -149,6 +149,7 @@ const resultChartCanvas = document.getElementById('result-chart');
 const resultTableBody = document.getElementById('result-table-body');
 const context = canvas.getContext('2d', { willReadFrequently: true });
 const errorModal = document.getElementById('error-modal');
+const errorTitle = document.getElementById('error-title');
 const errorMessage = document.getElementById('error-message');
 const closeModalBtn = document.getElementById('close-modal-btn');
 let stream;
@@ -159,8 +160,8 @@ let chart;
 /**
  * @brief نمایش مودال خطا با پیام مشخص
  */
-function showErrorModal(message, title = "خطا در دسترسی به دوربین") {
-    errorModal.querySelector('h3').textContent = title;
+function showErrorModal(message, title = "خطا") {
+    errorTitle.textContent = title;
     errorMessage.textContent = message;
     errorModal.classList.remove('hidden');
     setTimeout(() => {
@@ -225,7 +226,7 @@ async function startCamera() {
         } else if (err.name === "SecurityError" || err.name === "TypeError") {
             message = "دسترسی به دوربین به دلایل امنیتی مسدود شده است. لطفاً مطمئن شوید که صفحه از طریق یک اتصال امن (HTTPS) بارگیری شده است.";
         }
-        showErrorModal(message);
+        showErrorModal(message, "خطا در دسترسی به دوربین");
     } finally {
         startCameraBtn.disabled = false;
         startCameraBtn.textContent = '۱. شروع دوربین';
@@ -237,34 +238,44 @@ async function startCamera() {
  * @brief گرفتن عکس از ویدیو و نمایش آن روی بوم
  */
 function captureImage() {
-    try {
-        // بررسی می‌کند که آیا ویدیو ابعاد معتبر دارد یا خیر
-        if (!video.videoWidth || !video.videoHeight) {
-            showErrorModal("ابعاد ویدیو هنوز در دسترس نیست. لطفاً لحظه‌ای صبر کرده و دوباره امتحان کنید.", "خطا در عکس‌برداری");
-            return;
+    captureBtn.disabled = true;
+    captureBtn.textContent = 'در حال پردازش...';
+    captureBtn.classList.add('btn-disabled');
+
+    // استفاده از setTimeout برای اطمینان از آمادگی کامل ویدیو
+    setTimeout(() => {
+        try {
+            if (!video.videoWidth || !video.videoHeight) {
+                throw new Error("ابعاد ویدیو هنوز در دسترس نیست. لطفاً لحظه‌ای صبر کرده و دوباره امتحان کنید.");
+            }
+
+            console.log("Drawing image to canvas...");
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+            video.classList.add('hidden');
+            canvas.classList.remove('hidden');
+
+            console.log("Stopping camera stream...");
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+            }
+
+            console.log("Enabling analyze button.");
+            analyzeBtn.disabled = false;
+            analyzeBtn.classList.remove('btn-disabled');
+            
+        } catch (err) {
+            console.error("خطا در گرفتن عکس: ", err);
+            showErrorModal(`خطایی در هنگام گرفتن عکس رخ داد: ${err.message}`, "خطا در عکس‌برداری");
+            // در صورت خطا، دکمه را به حالت اولیه برگردان
+            captureBtn.disabled = false;
+            captureBtn.textContent = '۲. عکس بگیر';
+            captureBtn.classList.remove('btn-disabled');
         }
-
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        context.drawImage(video, 0, 0, canvas.width, canvas.height);
-        
-        video.classList.add('hidden');
-        canvas.classList.remove('hidden');
-
-        if (stream) {
-            stream.getTracks().forEach(track => track.stop());
-        }
-
-        // فعال کردن دکمه آنالیز و غیرفعال کردن دکمه عکس‌برداری
-        analyzeBtn.disabled = false;
-        analyzeBtn.classList.remove('btn-disabled');
-        captureBtn.disabled = true;
-        captureBtn.classList.add('btn-disabled');
-        
-    } catch (err) {
-        console.error("خطا در گرفتن عکس: ", err);
-        showErrorModal(`خطایی در هنگام گرفتن عکس رخ داد: ${err.message}`, "خطا در عکس‌برداری");
-    }
+    }, 100); // تاخیر ۱۰۰ میلی‌ثانیه‌ای
 }
 
 /**
@@ -273,7 +284,10 @@ function captureImage() {
 function resetApp() {
     if (stream) {
         stream.getTracks().forEach(track => track.stop());
+        stream = null;
     }
+    video.srcObject = null;
+
     setupSection.classList.remove('hidden');
     cameraSection.classList.add('hidden');
     resultsSection.classList.add('hidden');
@@ -283,7 +297,9 @@ function resetApp() {
     context.clearRect(0, 0, canvas.width, canvas.height);
 
     captureBtn.disabled = false;
+    captureBtn.textContent = '۲. عکس بگیر';
     captureBtn.classList.remove('btn-disabled');
+
     analyzeBtn.disabled = true;
     analyzeBtn.classList.add('btn-disabled');
 
@@ -299,7 +315,7 @@ function resetApp() {
  */
 function analyzeImage() {
     if (canvas.width === 0 || canvas.height === 0) {
-        showErrorModal("لطفاً ابتدا یک عکس بگیرید.", "خطای آنالیز");
+        showErrorModal("بوم خالی است. لطفاً ابتدا یک عکس بگیرید.", "خطای آنالیز");
         return;
     }
     resultsSection.classList.remove('hidden');
@@ -338,7 +354,7 @@ function analyzeImage() {
             });
 
             if (coinComponentIndex === -1 || maxArea < 100) {
-                throw new Error("سکه در تصویر پیدا نشد. لطفاً مطمئن شوید سکه به وضوح در تصویر مشخص است و رنگ آن با پس‌زمینه تضاد دارد.");
+                throw new Error("سکه در تصویر پیدا نشد. لطفاً مطمئن شوید سکه به وضوح در تصویر مشخص است، رنگ آن با پس‌زمینه تضاد دارد و بزرگترین جسم در تصویر است.");
             }
             
             const coinAreaPixels = maxArea;
