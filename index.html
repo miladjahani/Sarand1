@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8">که
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>آنالیز دانه بندی سنگ شکن</title>
     <!-- اتصال به Tailwind CSS برای استایل‌دهی -->
@@ -126,7 +126,7 @@
     <!-- مودال نمایش خطا -->
     <div id="error-modal" class="modal-overlay hidden opacity-0">
         <div class="modal-content opacity-0">
-            <h3 class="text-xl font-bold text-red-600 dark:text-red-400 mb-4">خطا در دسترسی به دوربین</h3>
+            <h3 class="text-xl font-bold text-red-600 dark:text-red-400 mb-4">خطا</h3>
             <p id="error-message" class="mb-6"></p>
             <button id="close-modal-btn" class="btn btn-primary w-full">متوجه شدم</button>
         </div>
@@ -159,7 +159,8 @@ let chart;
 /**
  * @brief نمایش مودال خطا با پیام مشخص
  */
-function showErrorModal(message) {
+function showErrorModal(message, title = "خطا در دسترسی به دوربین") {
+    errorModal.querySelector('h3').textContent = title;
     errorMessage.textContent = message;
     errorModal.classList.remove('hidden');
     setTimeout(() => {
@@ -196,20 +197,22 @@ async function startCamera() {
         }
         const constraints = {
             video: {
-                facingMode: 'environment', // استفاده از دوربین پشت
+                facingMode: 'environment',
                 width: { ideal: 1280 },
                 height: { ideal: 720 }
             }
         };
         stream = await navigator.mediaDevices.getUserMedia(constraints);
         video.srcObject = stream;
-        video.style.display = 'block';
-        canvas.style.display = 'none';
+        video.classList.remove('hidden');
+        canvas.classList.add('hidden');
         setupSection.classList.add('hidden');
         cameraSection.classList.remove('hidden');
         resultsSection.classList.add('hidden');
         analyzeBtn.disabled = true;
         analyzeBtn.classList.add('btn-disabled');
+        captureBtn.disabled = false;
+        captureBtn.classList.remove('btn-disabled');
     } catch (err) {
         console.error("خطا در دسترسی به دوربین: ", err);
         let message = "یک خطای ناشناخته رخ داد.";
@@ -234,16 +237,34 @@ async function startCamera() {
  * @brief گرفتن عکس از ویدیو و نمایش آن روی بوم
  */
 function captureImage() {
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    context.drawImage(video, 0, 0, canvas.width, canvas.height);
-    video.style.display = 'none';
-    canvas.style.display = 'block';
-    stream.getTracks().forEach(track => track.stop()); // خاموش کردن دوربین
-    analyzeBtn.disabled = false;
-    analyzeBtn.classList.remove('btn-disabled');
-    captureBtn.disabled = true;
-    captureBtn.classList.add('btn-disabled');
+    try {
+        // بررسی می‌کند که آیا ویدیو ابعاد معتبر دارد یا خیر
+        if (!video.videoWidth || !video.videoHeight) {
+            showErrorModal("ابعاد ویدیو هنوز در دسترس نیست. لطفاً لحظه‌ای صبر کرده و دوباره امتحان کنید.", "خطا در عکس‌برداری");
+            return;
+        }
+
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        
+        video.classList.add('hidden');
+        canvas.classList.remove('hidden');
+
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+        }
+
+        // فعال کردن دکمه آنالیز و غیرفعال کردن دکمه عکس‌برداری
+        analyzeBtn.disabled = false;
+        analyzeBtn.classList.remove('btn-disabled');
+        captureBtn.disabled = true;
+        captureBtn.classList.add('btn-disabled');
+        
+    } catch (err) {
+        console.error("خطا در گرفتن عکس: ", err);
+        showErrorModal(`خطایی در هنگام گرفتن عکس رخ داد: ${err.message}`, "خطا در عکس‌برداری");
+    }
 }
 
 /**
@@ -257,8 +278,8 @@ function resetApp() {
     cameraSection.classList.add('hidden');
     resultsSection.classList.add('hidden');
     
-    video.style.display = 'block';
-    canvas.style.display = 'none';
+    video.classList.remove('hidden');
+    canvas.classList.add('hidden');
     context.clearRect(0, 0, canvas.width, canvas.height);
 
     captureBtn.disabled = false;
@@ -278,21 +299,20 @@ function resetApp() {
  */
 function analyzeImage() {
     if (canvas.width === 0 || canvas.height === 0) {
-        showErrorModal("لطفاً ابتدا یک عکس بگیرید.");
+        showErrorModal("لطفاً ابتدا یک عکس بگیرید.", "خطای آنالیز");
         return;
     }
     resultsSection.classList.remove('hidden');
     window.scrollTo({ top: resultsSection.offsetTop, behavior: 'smooth' });
     statusDiv.textContent = 'در حال پردازش... این فرآیند ممکن است چند لحظه طول بکشد.';
+    statusDiv.className = 'text-center my-4 p-3 rounded-lg bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200';
     statusDiv.classList.remove('hidden');
 
-    // استفاده از setTimeout برای اینکه UI فرصت آپدیت شدن داشته باشد
     setTimeout(() => {
         try {
             const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
             const { data, width, height } = imageData;
 
-            // ۱. تبدیل به تصویر سیاه و سفید با آستانه‌گذاری
             const threshold = 120; 
             for (let i = 0; i < data.length; i += 4) {
                 const gray = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
@@ -300,11 +320,9 @@ function analyzeImage() {
                 data[i] = data[i + 1] = data[i + 2] = value;
             }
 
-            // ۲. پیدا کردن اجسام (سنگ‌ها و سکه)
             const labels = findComponents(imageData);
             const componentAreas = calculateAreas(labels);
 
-            // ۳. پیدا کردن سکه و محاسبه مقیاس
             const coinDiameterMM = parseFloat(coinDiameterInput.value);
             if (isNaN(coinDiameterMM) || coinDiameterMM <= 0) {
                 throw new Error("مقدار قطر سکه نامعتبر است.");
@@ -326,10 +344,9 @@ function analyzeImage() {
             const coinAreaPixels = maxArea;
             const pixelsPerMm2 = coinAreaPixels / (Math.PI * Math.pow(coinDiameterMM / 2, 2));
 
-            // ۴. محاسبه اندازه سنگ‌ها
             const particleSizesMM = [];
             componentAreas.forEach((area, index) => {
-                if (index !== coinComponentIndex && area > 20) { // نادیده گرفتن نویز
+                if (index !== coinComponentIndex && area > 20) {
                     const areaMM2 = area / pixelsPerMm2;
                     const equivalentDiameter = Math.sqrt(4 * areaMM2 / Math.PI);
                     particleSizesMM.push(equivalentDiameter);
@@ -340,7 +357,6 @@ function analyzeImage() {
                 throw new Error("هیچ سنگی برای آنالیز پیدا نشد. لطفاً از تضاد کافی بین سنگ‌ها و پس‌زمینه اطمینان حاصل کنید.");
             }
             
-            // ۵. تولید نتایج دانه‌بندی و نمایش آن‌ها
             displayResults(particleSizesMM);
 
             statusDiv.textContent = `آنالیز با موفقیت انجام شد. ${particleSizesMM.length} سنگ شناسایی شد.`;
@@ -458,15 +474,8 @@ function displayResults(sizes) {
                 title: { display: true, text: 'نمودار منحنی دانه‌بندی', font: { size: 18 } },
                 legend: { position: 'top' },
                 zoom: {
-                    zoom: {
-                        wheel: { enabled: true },
-                        pinch: { enabled: true },
-                        mode: 'x',
-                    },
-                    pan: {
-                        enabled: true,
-                        mode: 'x',
-                    }
+                    zoom: { wheel: { enabled: true }, pinch: { enabled: true }, mode: 'x' },
+                    pan: { enabled: true, mode: 'x' }
                 }
             },
             scales: {
