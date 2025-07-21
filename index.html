@@ -1,24 +1,24 @@
-<!نوع سند html>
+<!DOCTYPE html>
 <html lang="fa" dir="rtl">
-<سر>
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>طھطظ„غŒظ„ ط؛ط±ط¨ط§ظ„ ط¨ط±ط§غŒ ظ‡غŒظ¾â€Œظ„غŒع†غŒظ†ع¯</title>
+    <title>تحلیل غربال برای هیپ‌لیچینگ</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;700&display=swap" rel="stylesheet">
-    <سبک>
-        بدن {
-            فونت-خانواده: 'وزیرماتن'، بدون سریف؛
+    <style>
+        body {
+            font-family: 'Vazirmatn', sans-serif;
         }
         .modal {
-            نمایش: هیچکدام؛ /* به طور پیش‌فرض پنهان است */
+            display: none; /* Hidden by default */
         }
         .modal.active {
-            نمایش: flex; /* نمایش هنگام فعال بودن */
+            display: flex; /* Show when active */
         }
     </style>
 </head>
@@ -26,91 +26,91 @@
 
     <div class="container mx-auto p-4 md:p-8">
         <header class="text-center mb-8">
-            <h1 class="text-3xl md:text-4xl font-bold text-gray-800">طھطظ„غŒظ„ ط؛ط±ط¨ط§ظ„ ط¨ط±ط§غŒ ظ‡غŒظ¾â€Œظ„غŒع†غŒظ† ط§ع©ط³غŒط¯غŒ</h1>
-            <p class="text-gray-600 mt-2">ظˆط±ظˆط¯غŒâ€Œظ‡ط§ ط±ط§ ط¨ط± طط³ط¨ ع¯ط±ظ… ظˆط§ط±ط¯ ع©ط±ط¯ظ‡ ظˆ ظ †طط¬ط. ظ…ط´ط§ظ‡ط¯ظ‡ ع©ظ†غŒط¯</p>
-        </هدر>
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-800">تحلیل غربال برای هیپ‌لیچینگ مس اکسیدی</h1>
+            <p class="text-gray-600 mt-2">ورودی‌ها را بر حسب گرم وارد کرده و نتایج را مشاهده کنید</p>
+        </header>
 
         <main class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <!-- ستون ورودی‌ها و کنترل‌ها -->
+            <!-- Inputs and Controls Column -->
             <div class="lg:col-span-1 bg-white p-6 rounded-xl shadow-lg">
-                <h2 class="text-2xl font-semibold text-gray-700 border-b-2 border-cyan-500 pb-3 mb-6">ظˆط±ظˆط¯ ط¯ط§ط¯ظ‡â€Œظ‡ط§</h2>
+                <h2 class="text-2xl font-semibold text-gray-700 border-b-2 border-cyan-500 pb-3 mb-6">ورود داده‌ها</h2>
                 <div id="sieve-inputs" class="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
-                    <!-- ورودی‌های غربال به صورت پویا در اینجا تولید می‌شوند -->
+                    <!-- Sieve inputs will be dynamically generated here -->
                 </div>
                 <div class="grid grid-cols-2 gap-4 mt-8">
-                    <button id="calculate-btn" class="w-full bg-cyan-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-cyan-700 transition-colors shadow-md">ظ…ظ‡</button>
-                    <button id="reset-btn" class="w-full bg-red-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-red-600 transition-colors shadow-md">رنگ‌ها</button>
-                    <button id="manage-sieves-btn" class="w-full col-span-2 bg-purple-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-purple-700 transition-colors shadow-md">ظ†ظ†غŒظ… ظ†ظ‡ظ‡</button>
-                    <button id="export-btn" class="w-full col-span-2 bg-green-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-green-700 transition-colors shadow-md disabled:bg-gray-400" disabled>ط®ط±ظˆط¬غŒط§ع©ط³ظ„</button>
+                    <button id="calculate-btn" class="w-full bg-cyan-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-cyan-700 transition-colors shadow-md">محاسبه</button>
+                    <button id="reset-btn" class="w-full bg-red-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-red-600 transition-colors shadow-md">ریست</button>
+                    <button id="manage-sieves-btn" class="w-full col-span-2 bg-purple-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-purple-700 transition-colors shadow-md">تنظیم سرندها</button>
+                    <button id="export-btn" class="w-full col-span-2 bg-green-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-green-700 transition-colors shadow-md disabled:bg-gray-400" disabled>خروجی اکسل</button>
                 </div>
             </div>
 
-            <!-- ستون نتایج و نمودارها -->
+            <!-- Results and Charts Column -->
             <div id="results-container" class="lg:col-span-2 bg-white p-6 rounded-xl shadow-lg hidden">
-                 <h2 class="text-2xl font-semibold text-gray-700 border-b-2 border-teal-500 pb-3 mb-6">ظ†طھط§غŒط¬ طھطظ„غŒظ„</h2>
+                 <h2 class="text-2xl font-semibold text-gray-700 border-b-2 border-teal-500 pb-3 mb-6">نتایج تحلیل</h2>
                 
-                <!-- خلاصه آمار -->
+                <!-- Summary Stats -->
                 <div id="summary-stats" class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center mb-8">
-                    <!-- خلاصه اطلاعات اینجا تزریق خواهد شد -->
+                    <!-- Summary data will be injected here -->
                 </div>
 
-                <!-- نمودارها -->
+                <!-- Charts -->
                 <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
                     <div>
-                        <h3 class="text-xl font-semibold text-gray-700 mb-4 text-center">ظ†ظ…ظˆط¯ط§ط± طھط¬ظ…ط¹غŒ ط¹ط¨ظˆط±غŒ</h3>
+                        <h3 class="text-xl font-semibold text-gray-700 mb-4 text-center">نمودار تجمعی عبوری</h3>
                         <canvas id="passing-chart"></canvas>
-                        <p class="text-center text-sm text-gray-500 mt-2">ط§ظ†ط¯ط§ط²ظ‡ ط³ط±ظ†ط¯ (ظ…غŒع©ط±ظˆظ†) - ظ…ظ‚غŒط§ط³ ظ„عŒŒط§ط³
+                        <p class="text-center text-sm text-gray-500 mt-2">اندازه سرند (میکرون) - مقیاس لگاریتمی</p>
                     </div>
                     <div>
-                        <h3 class="text-xl font-semibold text-gray-700 mb-4 text-center">ظ‡غŒط³طھظˆع¯ط±ط§ظ… طھظˆط²غŒط¹ ظˆط²ظ†</h3>
+                        <h3 class="text-xl font-semibold text-gray-700 mb-4 text-center">هیستوگرام توزیع وزن</h3>
                         <canvas id="weight-chart"></canvas>
                     </div>
                 </div>
             </div>
              <div id="welcome-container" class="lg:col-span-2 bg-white p-6 rounded-xl shadow-lg flex items-center justify-center">
-                <p class="text-gray-500 text-xl">ظ†طھط§غŒط¬ طھطظ„غŒظ„ ظ¾ط³ ط§ط² ظ…طط§ط³ط¨ظ‡ ط¯ط± ط§غŒظ†ط¬ط§ ظ†ظ…ط§ظ ظ…غŒâ€Œط´ظˆظ†ط¯.</p>
+                <p class="text-gray-500 text-xl">نتایج تحلیل پس از محاسبه در اینجا نمایش داده می‌شوند.</p>
             </div>
-        </اصلی>
+        </main>
     </div>
 
-    <!-- مدیریت غربال مودال -->
+    <!-- Sieve Management Modal -->
     <div id="sieve-modal" class="modal fixed inset-0 bg-black bg-opacity-50 items-center justify-center p-4">
         <div class="bg-white rounded-lg shadow-2xl p-6 w-full max-w-md">
-            <h2 class="text-2xl font-bold mb-4">ظ…ظ¯ظ†ظ‡ط§</h2>
+            <h2 class="text-2xl font-bold mb-4">مدیریت سرندها</h2>
             <div id="modal-sieve-list" class="max-h-60 overflow-y-auto border rounded-lg p-2 mb-4">
-                <!-- فهرست الک‌های فعلی -->
+                <!-- List of current sieves -->
             </div>
             <div class="border-t pt-4">
-                <h3 class="text-lg font-semibold mb-2">ط§ظپط²ظˆط¯ظ† ط³ط±ظ†ط¯ ط¬ط¯غŒط¯</h3>
-                <input id="new-sieve-label" type="text" placeholder="ظ†ط§ظ… ط³ط±ظ†ط¯ (ظ…ط«ط§ظ„: 40 ظ…ط´)" class="w-full p-2 border rounded mb-2">
-                <input id="new-sieve-size" type="number" placeholder="ط§ظ†ط¯ط§ط²ظ‡ (ظ…غŒع©ط±ظˆظ†) - ط¨ط±ط§غŒ ط³غŒظ†غŒ ط®ط§ظ¨غŒ ط®ط§ظ¨غŒ ط¨عط¯ط" حاشیه p-2 گرد mb-4">
+                <h3 class="text-lg font-semibold mb-2">افزودن سرند جدید</h3>
+                <input id="new-sieve-label" type="text" placeholder="نام سرند (مثال: 40 مش)" class="w-full p-2 border rounded mb-2">
+                <input id="new-sieve-size" type="number" placeholder="اندازه (میکرون) - برای سینی خالی بگذارید" class="w-full p-2 border rounded mb-4">
                 <div class="flex justify-between gap-4">
-                    <button id="add-sieve-btn" class="bg-blue-500 text-white px-4 py-2 rounded-lg flex-grow">ظ§ظپط²ظˆط¯ظ†</button>
-                    <button id="close-modal-btn" class="bg-gray-500 text-white px-4 py-2 rounded-lg flex-grow">ظ†</button>
+                    <button id="add-sieve-btn" class="bg-blue-500 text-white px-4 py-2 rounded-lg flex-grow">افزودن</button>
+                    <button id="close-modal-btn" class="bg-gray-500 text-white px-4 py-2 rounded-lg flex-grow">بستن</button>
                 </div>
             </div>
         </div>
     </div>
 
 
-    <اسکریپت>
-        // --- داده‌های اولیه ---
-        الک‌های فرضی = [
-            { label: 'ط³ط±ظ†ط¯ 15', اندازه: 150000 }, { label: '10 ط³ط§ظ†طھ', اندازه: 100000 },
-            { label: '7.5 ط³ط§ظ†طھ', اندازه: 75000 }, { label: '2 ط§غŒظ†ع†', اندازه: 50800 },
-            { label: '۱ط§غŒظ†ع†', size: ۲۵۴۰۰ }, { label: '۳/۴ط§غŒظ†ع†', size: ۱۹۰۰۰ },
-            { label: '۱/۲ ظ§غ†ع†', size: ۱۲۷۰۰ }, { label: '۴ ظ…ط´', size: ۴۷۶۰ },
-            { label: '۸ ظ…ط', size: ۲۳۸۰ }, { label: '۱۶ ظ…ط', size: ۱۱۹۰ },
-            { label: '30 ظ…ط', size: 595 }, { label: '100 ظ…ط', size: 149 },
-            { label: 'ط³غŒظ†غŒ', اندازه: null },
+    <script>
+        // --- INITIAL DATA ---
+        let sieves = [
+            { label: 'سرند 15', size: 150000 }, { label: '10 سانت', size: 100000 },
+            { label: '7.5 سانت', size: 75000 }, { label: '2 اینچ', size: 50800 },
+            { label: '1اینچ', size: 25400 }, { label: '3/4 اینچ', size: 19000 },
+            { label: '1/2 اینچ', size: 12700 }, { label: '4 مش', size: 4760 },
+            { label: '8 مش', size: 2380 }, { label: '16 مش', size: 1190 },
+            { label: '30 مش', size: 595 }, { label: '100 مش', size: 149 },
+            { label: 'سینی', size: null },
         ];
 
-        تابع const TARGET_VALUES = { d10: 10، d30: 30، d50: 50، d60: 60، d80: 80 };
-        بگذارید آخرین تحلیل = تهی؛
-        بگذارید passageChartInstance = null;
-        بگذارید weightChartInstance = null; باشد.
+        const TARGET_VALUES = { d10: 10, d30: 30, d50: 50, d60: 60, d80: 80 };
+        let latestAnalysis = null;
+        let passingChartInstance = null;
+        let weightChartInstance = null;
 
-        // --- عناصر DOM ---
+        // --- DOM ELEMENTS ---
         const sieveInputsContainer = document.getElementById('sieve-inputs');
         const calculateBtn = document.getElementById('calculate-btn');
         const resetBtn = document.getElementById('reset-btn');
@@ -119,292 +119,293 @@
         const welcomeContainer = document.getElementById('welcome-container');
         const summaryStatsContainer = document.getElementById('summary-stats');
         
-        // عناصر مودال
-        const manageSievesBtn = document.getElementById('مدیریت-غربال‌ها-btn');
-        const sieveModal = document.getElementById('غربال-معیار');
-        const closeModalBtn = document.getElementById('بستن-modal-btn');
+        // Modal elements
+        const manageSievesBtn = document.getElementById('manage-sieves-btn');
+        const sieveModal = document.getElementById('sieve-modal');
+        const closeModalBtn = document.getElementById('close-modal-btn');
         const addSieveBtn = document.getElementById('add-sieve-btn');
         const modalSieveList = document.getElementById('modal-sieve-list');
         const newSieveLabelInput = document.getElementById('new-sieve-label');
-        const newSieveSizeInput = document.getElementById('اندازه-الک جدید');
+        const newSieveSizeInput = document.getElementById('new-sieve-size');
 
-        // --- رندر رابط کاربری ---
-        تابع renderSieveInputs() {
+        // --- UI RENDERING ---
+        function renderSieveInputs() {
             sieveInputsContainer.innerHTML = '';
             sieves.sort((a, b) => (b.size ?? -1) - (a.size ?? -1));
-            sieves.forEach(غربال => {
+            sieves.forEach(sieve => {
                 const div = document.createElement('div');
-                div.className = 'افکت‌های انعطاف‌پذیر-فاصله مرکز-۴';
+                div.className = 'flex items-center gap-4';
                 const label = document.createElement('label');
                 label.className = 'w-2/3 text-right text-gray-700';
-                label.textContent = `${sieve.label} (${sieve.size ?? 'ط³غŒظ†غŒ} آµm):`;
+                label.textContent = `${sieve.label} (${sieve.size ?? 'سینی'} µm):`;
                 label.htmlFor = `sieve-${sieve.label}`;
                 
                 const input = document.createElement('input');
-                ورودی.نوع = 'عدد';
+                input.type = 'number';
                 input.id = `sieve-${sieve.label}`;
                 input.className = 'w-1/3 p-2 border rounded-md text-left focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500';
-                ورودی.placeholder = '0.0';
-                ورودی.مقدار = '0';
+                input.placeholder = '0.0';
+                input.value = '0';
 
-                div.appendChild(برچسب)؛
-                div.appendChild(ورودی)؛
+                div.appendChild(label);
+                div.appendChild(input);
                 sieveInputsContainer.appendChild(div);
             });
         }
 
-        // --- منطق محاسبه ---
-        تابع getFloat(مقدار) {
+        // --- CALCULATION LOGIC ---
+        function getFloat(value) {
             const num = parseFloat(value);
-            بازگشت NaN (تعداد) است؟ 0.0 : تعداد
+            return isNaN(num) ? 0.0 : num;
         }
 
-        تابع linearInterpolation(هدف، نقاط) {
-            اگر (!points || points.length === 0) مقدار null را برگرداند؛
-            points.sort((a,b) => b[0] - a[0]); // مرتب‌سازی بر اساس درصد نزولی
-            اگر (هدف >= امتیاز[0][0]) امتیاز[0][1] را برگرداند؛
-            اگر (هدف <= points[points.length - 1][0]) points[points.length - 1][1] را برگردان؛
+        function linearInterpolation(target, points) {
+            if (!points || points.length === 0) return null;
+            points.sort((a,b) => b[0] - a[0]); // Sort by passing percent descending
+            if (target >= points[0][0]) return points[0][1];
+            if (target <= points[points.length - 1][0]) return points[points.length - 1][1];
 
-            برای (فرض کنید i = 0؛ i < points.length - 1؛ i++) {
-                const [p_high، d_high] = امتیاز[i];
-                const [p_low، d_low] = امتیاز[i + 1];
-                اگر (p_high >= هدف && هدف >= p_low) {
-                    اگر (p_high - p_low === 0) مقدار d_high را برگرداند؛
-                    کسر ثابت = (p_high - هدف) / (p_high - p_low)؛
-                    کسر d_high + (d_low - d_high) * را برمی‌گرداند؛
+            for (let i = 0; i < points.length - 1; i++) {
+                const [p_high, d_high] = points[i];
+                const [p_low, d_low] = points[i + 1];
+                if (p_high >= target && target >= p_low) {
+                    if (p_high - p_low === 0) return d_high;
+                    const fraction = (p_high - target) / (p_high - p_low);
+                    return d_high + (d_low - d_high) * fraction;
                 }
             }
-            تهی را برگردان؛
+            return null;
         }
 
-        تابع performAnalyze() {
+        function performAnalysis() {
             const weights = sieves.map(sieve => getFloat(document.getElementById(`sieve-${sieve.label}`).value));
             const totalWeight = weights.reduce((sum, w) => sum + w, 0);
 
-            اگر (وزن کل === 0) {
-                alert('ظ…ط¬ظ…ظˆط¹ ظˆط²ظ†â€Œظ‡ط§ ظ†ظ…غŒâ€Œطھظˆط§ظ†ط¯ طمظپط± ط¨ط§ط´ط¯.');
-                بازگشت؛
+            if (totalWeight === 0) {
+                alert('مجموع وزن‌ها نمی‌تواند صفر باشد.');
+                return;
             }
 
             const percents = weights.map(w => (w / totalWeight) * 100);
             const cumRetained = [];
-            بگذارید جمع شود = 0.0؛
+            let cum = 0.0;
             percents.forEach(p => {
-                تقدیر += پ؛
-                انزال حفظ شده.فشار دادن(انزال)؛
+                cum += p;
+                cumRetained.push(cum);
             });
             const percentPassing = cumRetained.map(cr => 100 - cr);
 
             const interpPoints = [];
-            sieves.forEach((غربال، i) => {
-                اگر (sieve.size !== null) {
+            sieves.forEach((sieve, i) => {
+                if (sieve.size !== null) {
                     interpPoints.push([percentPassing[i], sieve.size]);
                 }
             });
 
-            مقدار ثابت dValues = {};
-            برای (کلید ثابت در TARGET_VALUES) {
+            const dValues = {};
+            for (const key in TARGET_VALUES) {
                 dValues[key] = linearInterpolation(TARGET_VALUES[key], interpPoints);
             }
 
-            فرض کنید Cu = تهی؛
-            اگر (dValues.d10 و dValues.d10 > 0 و dValues.d60) {
+            let Cu = null;
+            if (dValues.d10 && dValues.d10 > 0 && dValues.d60) {
                 Cu = dValues.d60 / dValues.d10;
             }
 
-            بگذارید Cc = تهی باشد؛
-            اگر (dValues.d10 && dValues.d60 && dValues.d30 && dValues.d10 > 0 && dValues.d60 > 0) {
+            let Cc = null;
+            if (dValues.d10 && dValues.d60 && dValues.d30 && dValues.d10 > 0 && dValues.d60 > 0) {
                 Cc = Math.pow(dValues.d30, 2) / (dValues.d10 * dValues.d60);
             }
 
-            آخرین تحلیل = {
-                وزن‌ها، درصدها، تجمع حفظ‌شده، درصد عبور، مقادیر d، مس، رونوشت، وزن کل
+            latestAnalysis = {
+                weights, percents, cumRetained, percentPassing, dValues, Cu, Cc, totalWeight
             };
             
-            نمایش نتایج();
+            displayResults();
             exportBtn.disabled = false;
         }
 
-        تابع نمایش نتایج () {
+        function displayResults() {
             welcomeContainer.classList.add('hidden');
             resultsContainer.classList.remove('hidden');
 
-            // **رفع**: d50 و d80 به شبکه نمایش اضافه شد
+            // **FIX**: Added d50 and d80 to the display grid
             summaryStatsContainer.innerHTML = `
-                <div class="bg-gray-100 p-3 rounded-lg"><p class="text-sm text-gray-500">D10</p><p class="text-xl font-bold text-gray-800">${latestAnalysis.dValues.d10?.toFixed(2) ?? 'نامشخص'}</p></div>
-                <div class="bg-gray-100 p-3 rounded-lg"><p class="text-sm text-gray-500">D30</p><p class="text-xl font-bold text-gray-800">${latestAnalysis.dValues.d30?.toFixed(2) ?? 'نامشخص'}</p></div>
-                <div class="bg-gray-100 p-3 rounded-lg"><p class="text-sm text-gray-500">D50</p><p class="text-xl font-bold text-gray-800">${latestAnalysis.dValues.d50?.toFixed(2) ?? 'نامشخص'}</p></div>
-                <div class="bg-gray-100 p-3 rounded-lg"><p class="text-sm text-gray-500">D60</p><p class="text-xl font-bold text-gray-800">${latestAnalysis.dValues.d60?.toFixed(2) ?? 'نامشخص'}</p></div>
-                <div class="bg-gray-100 p-3 rounded-lg"><p class="text-sm text-gray-500">D80</p><p class="text-xl font-bold text-gray-800">${latestAnalysis.dValues.d80?.toFixed(2) ?? 'نامشخص'}</p></div>
-                <div class="bg-gray-100 p-3 rounded-lg"><p class="text-sm text-gray-500">Cu</p><p class="text-xl font-bold text-gray-800">${latestAnalysis.Cu?.toFixed(2) ?? 'نامشخص'}</p></div>
-                <div class="bg-gray-100 p-3 rounded-lg"><p class="text-sm text-gray-500">کد Cc</p><p class="text-xl font-bold text-gray-800">${latestAnalysis.Cc?.toFixed(2) ?? 'نامشخص'}</p></div>
-                <div class="bg-gray-100 p-3 rounded-lg"><p class="text-sm text-gray-500">وزن کل</p><p class="text-xl font-bold text-gray-800">${latestAnalysis.totalWeight?.toFixed(2) ?? 'N/A'} g</p></div>
+                <div class="bg-gray-100 p-3 rounded-lg"><p class="text-sm text-gray-500">D10</p><p class="text-xl font-bold text-gray-800">${latestAnalysis.dValues.d10?.toFixed(2) ?? 'N/A'}</p></div>
+                <div class="bg-gray-100 p-3 rounded-lg"><p class="text-sm text-gray-500">D30</p><p class="text-xl font-bold text-gray-800">${latestAnalysis.dValues.d30?.toFixed(2) ?? 'N/A'}</p></div>
+                <div class="bg-gray-100 p-3 rounded-lg"><p class="text-sm text-gray-500">D50</p><p class="text-xl font-bold text-gray-800">${latestAnalysis.dValues.d50?.toFixed(2) ?? 'N/A'}</p></div>
+                <div class="bg-gray-100 p-3 rounded-lg"><p class="text-sm text-gray-500">D60</p><p class="text-xl font-bold text-gray-800">${latestAnalysis.dValues.d60?.toFixed(2) ?? 'N/A'}</p></div>
+                <div class="bg-gray-100 p-3 rounded-lg"><p class="text-sm text-gray-500">D80</p><p class="text-xl font-bold text-gray-800">${latestAnalysis.dValues.d80?.toFixed(2) ?? 'N/A'}</p></div>
+                <div class="bg-gray-100 p-3 rounded-lg"><p class="text-sm text-gray-500">Cu</p><p class="text-xl font-bold text-gray-800">${latestAnalysis.Cu?.toFixed(2) ?? 'N/A'}</p></div>
+                <div class="bg-gray-100 p-3 rounded-lg"><p class="text-sm text-gray-500">Cc</p><p class="text-xl font-bold text-gray-800">${latestAnalysis.Cc?.toFixed(2) ?? 'N/A'}</p></div>
+                <div class="bg-gray-100 p-3 rounded-lg"><p class="text-sm text-gray-500">Total Weight</p><p class="text-xl font-bold text-gray-800">${latestAnalysis.totalWeight?.toFixed(2) ?? 'N/A'} g</p></div>
             `;
             
-            نمودارها را به‌روزرسانی کنید();
+            updateCharts();
         }
 
-        تابع updateCharts() {
-            // نمودار عبور
-            تابع const passageCtx = document.getElementById('passing-chart').getContext('2d');
-            const passageData = غربال‌ها
+        function updateCharts() {
+            // Passing Chart
+            const passingCtx = document.getElementById('passing-chart').getContext('2d');
+            const passingData = sieves
                 .map((s, i) => ({ x: s.size, y: latestAnalysis.percentPassing[i] }))
-                .filter(d => dx !== null)
-                .مرتب‌سازی((a,b) => ax - bx);
+                .filter(d => d.x !== null)
+                .sort((a,b) => a.x - b.x);
 
-            اگر (passingChartInstance) PassingChartInstance.destroy();
-            passingChartInstance = نمودار جدید (passingCtx، {
-                نوع: 'خط'،
-                داده‌ها: {
-                    مجموعه داده‌ها: [{
-                        برچسب: 'ط¯ط±طµط¯ ط¹ط¨ظˆط±غŒ'،
-                        داده‌ها: داده‌های عبوری،
-                        رنگ حاشیه: 'rgb(22, 163, 74)',
-                        رنگ پس‌زمینه: 'rgba(22, 163, 74, 0.2)',
-                        پر کنید: درست،
-                        تنش: 0.1
+            if (passingChartInstance) passingChartInstance.destroy();
+            passingChartInstance = new Chart(passingCtx, {
+                type: 'line',
+                data: {
+                    datasets: [{
+                        label: 'درصد عبوری',
+                        data: passingData,
+                        borderColor: 'rgb(22, 163, 74)',
+                        backgroundColor: 'rgba(22, 163, 74, 0.2)',
+                        fill: true,
+                        tension: 0.1
                     }]
-                }،
-                گزینه‌ها: {
-                    پاسخگو: درست،
-                    مقیاس‌ها: {
-                        x: { نوع: 'لگاریتمی'، عنوان: { نمایش: نادرست } }،
-                        y: { beginAtZero: true, max: 100, title: { display: true, text: '(%)'} }
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: { type: 'logarithmic', title: { display: false } },
+                        y: { beginAtZero: true, max: 100, title: { display: true, text: 'درصد عبوری (%)' } }
                     }
                 }
             });
 
-            // نمودار وزن
-            تابع const weightCtx = document.getElementById('نمودار وزن').getContext('2d');
+            // Weight Chart
+            const weightCtx = document.getElementById('weight-chart').getContext('2d');
             const weightData = sieves.filter(s => s.size !== null);
-            اگر (weightChartInstance) weightChartInstance.destroy();
-            weightChartInstance = نمودار جدید (weightCtx، {
-                نوع: 'نوار'،
-                داده‌ها: {
-                    برچسب‌ها: weightData.map(s => s.label),
-                    مجموعه داده‌ها: [{
-                        برچسب: 'ظˆط²ظ† ط¨ط§ظ‚غŒâ€Œظ…ط§ظ†ط¯ظ‡ (ع¯ط±ظ…)',
-                        داده‌ها: latestAnalysis.weights.slice(0, weightData.length),
-                        رنگ پس‌زمینه: 'rgba(59, 130, 246, 0.6)',
-                        رنگ حاشیه: 'rgb(59, 130, 246)',
-                        عرض حاشیه: ۱
+            if (weightChartInstance) weightChartInstance.destroy();
+            weightChartInstance = new Chart(weightCtx, {
+                type: 'bar',
+                data: {
+                    labels: weightData.map(s => s.label),
+                    datasets: [{
+                        label: 'وزن باقی‌مانده (گرم)',
+                        data: latestAnalysis.weights.slice(0, weightData.length),
+                        backgroundColor: 'rgba(59, 130, 246, 0.6)',
+                        borderColor: 'rgb(59, 130, 246)',
+                        borderWidth: 1
                     }]
-                }،
-                گزینه‌ها: { واکنش‌گرا: درست، مقیاس‌ها: { y: { beginAtZero: درست } } }
+                },
+                options: { responsive: true, scales: { y: { beginAtZero: true } } }
             });
         }
         
-        تابع resetProgram() {
-            renderSieveInputs(); // این ورودی‌ها را به 0 بازنشانی می‌کند.
-            آخرین تحلیل = تهی؛
-            نتایجContainer.classList.add('hidden');
+        function resetProgram() {
+            renderSieveInputs(); // This will reset inputs to 0
+            latestAnalysis = null;
+            resultsContainer.classList.add('hidden');
             welcomeContainer.classList.remove('hidden');
-            exportBtn.disabled = درست؛
-            اگر (passingChartInstance) PassingChartInstance.destroy();
-            اگر (weightChartInstance) weightChartInstance.destroy();
+            exportBtn.disabled = true;
+            if (passingChartInstance) passingChartInstance.destroy();
+            if (weightChartInstance) weightChartInstance.destroy();
         }
 
-        // --- خروجی اکسل ---
-        تابع exportToExcel() {
-            اگر (!latestAnalysis) {
-                alert('ط§ط¨طھط¯ط§ طھطظ„غŒظ„ ط±ط§ ط§ظ†ط¬ط§ظ… ط¯ظ‡غŒط¯.');
-                بازگشت؛
+        // --- EXCEL EXPORT ---
+        function exportToExcel() {
+            if (!latestAnalysis) {
+                alert('ابتدا تحلیل را انجام دهید.');
+                return;
             }
-            // **رفع**: d50 و d80 به داده‌های خروجی اضافه شد
-            const rawData = sieves.map((غربال، i) => ({
-                'ط³ط±ظ†ط¯': غربال.برچسب،
-                'ط§ظ†ط¯ط§ط²ظ‡ (ظ…غŒع©ط±ظˆظ†)': sieve.size ?? ''،
-                'ظˆط²ظ† (ع¯ط±ظ…)': latestAnalysis.weights[i],
-                'ط¯ط±طµط¯ ظ†ع¯ظ‡â€Œط¯ط§ط±غŒ': latestAnalysis.percents[i],
-                'ط¯ط±طµط¯ طھط¬ظ…ط¹غŒ ظ†ع¯ظ‡â€Œط¯ط§ط±غŒ': latestAnalysis.cumRetained[i],
-                'ط¯ط±طµط¯ ط¹ط¨ظˆط±غŒ': latestAnalysis.percentPassing[i],
+            // **FIX**: Added d50 and d80 to the export data
+            const rawData = sieves.map((sieve, i) => ({
+                'سرند': sieve.label,
+                'اندازه (میکرون)': sieve.size ?? '',
+                'وزن (گرم)': latestAnalysis.weights[i],
+                'درصد نگه‌داری': latestAnalysis.percents[i],
+                'درصد تجمعی نگه‌داری': latestAnalysis.cumRetained[i],
+                'درصد عبوری': latestAnalysis.percentPassing[i],
             }));
             const summaryData = [
-                { 'ظ¾ط§ط±ط§ظ…طھط±': 'd10', 'ظ…ظ‚ط¯ط§ط±': latestAnalysis.dValues.d10 },
-                { 'ظ¾ط§ط±ط§ظ…طھط±': 'd30', 'ظ…ظ‚ط¯ط§ط±': latestAnalysis.dValues.d30 },
-                { 'ظ¾ط§ط±ط§ظ…طھط±': 'd50', 'ظ…ظ‚ط¯ط§ط±': latestAnalysis.dValues.d50 },
-                { 'ظ¾ط§ط±ط§ظ…طھط±': 'd60', 'ظ…ظ‚ط¯ط§ط±': latestAnalysis.dValues.d60 },
-                { 'ظ¾ط§ط±ط§ظ…طھط±': 'd80', 'ظ…ظ‚ط¯ط§ط±': latestAnalysis.dValues.d80 },
-                { 'ظ¾ط§ط±ط§ظ…طھط±': 'Cu', 'ظ…ظ‚ط¯ط§ط±': latestAnalysis.Cu },
-                { 'ظ¾ط§ط±ط§ظ…طھط±': 'Cc', 'ظ…ظ‚ط¯ط§ط±': latestAnalysis.Cc },
+                { 'پارامتر': 'd10', 'مقدار': latestAnalysis.dValues.d10 },
+                { 'پارامتر': 'd30', 'مقدار': latestAnalysis.dValues.d30 },
+                { 'پارامتر': 'd50', 'مقدار': latestAnalysis.dValues.d50 },
+                { 'پارامتر': 'd60', 'مقدار': latestAnalysis.dValues.d60 },
+                { 'پارامتر': 'd80', 'مقدار': latestAnalysis.dValues.d80 },
+                { 'پارامتر': 'Cu', 'مقدار': latestAnalysis.Cu },
+                { 'پارامتر': 'Cc', 'مقدار': latestAnalysis.Cc },
             ];
-            تابع const wb = XLSX.utils.book_new();
+            const wb = XLSX.utils.book_new();
             const wsRaw = XLSX.utils.json_to_sheet(rawData);
             const wsSummary = XLSX.utils.json_to_sheet(summaryData);
-            ‎XLSX.utils.book_append_sheet(wb, wsRaw, 'داده‌های خام');‎
-            ‎XLSX.utils.book_append_sheet(wb, wsSummary, 'خلاصه');‎
+            XLSX.utils.book_append_sheet(wb, wsRaw, 'Raw Data');
+            XLSX.utils.book_append_sheet(wb, wsSummary, 'Summary');
 
-            // **رفع مشکل**: تغییر روش خروجی برای سازگاری بهتر با موبایل
-            const wbout = XLSX.write(wb, {bookType: 'xlsx', type: 'array' }); (این تابع یک آرایه به نام xlsx ایجاد می‌کند و آن را به xlsx تبدیل می‌کند.)
+            // **FIX**: Changed export method for better mobile compatibility
+            const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
             const blob = new Blob([wbout], { type: 'application/octet-stream' });
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
-            link.download = 'فایل SieveAnalysisResults.xlsx';
-            سند.بدنه.اضافه کردن فرزند(لینک)؛
-            کلیک.لینک();
+            link.download = 'SieveAnalysisResults.xlsx';
+            document.body.appendChild(link);
+            link.click();
             document.body.removeChild(link);
         }
 
-        // --- منطق وجهی ---
-        تابع رندرModalSieveList() {
+        // --- MODAL LOGIC ---
+        function renderModalSieveList() {
             modalSieveList.innerHTML = '';
-            sieves.forEach(غربال => {
-                ردیف const = document.createElement('div');
+            sieves.forEach(sieve => {
+                const row = document.createElement('div');
                 row.className = 'flex justify-between items-center p-2 border-b';
-                row.innerHTML = `<span>${sieve.label} (${sieve.size ?? 'ط³غŒظ†غŒ'} آµm)</span>`;
-                if (sieve.label !== 'ط³غŒظ†غŒ') {
+                row.innerHTML = `<span>${sieve.label} (${sieve.size ?? 'سینی'} µm)</span>`;
+                if (sieve.label !== 'سینی') {
                     const removeBtn = document.createElement('button');
-                    removeBtn.textContent = 'طط°ظپ';
+                    removeBtn.textContent = 'حذف';
                     removeBtn.className = 'text-red-500 hover:text-red-700 font-semibold';
                     removeBtn.onclick = () => {
-                        غربال‌ها = sieves.filter(s => s.label !== sieve.label);
-                        رندر کردن لیست غربال مودال();
-                        رندر غربال ورودی‌ها();
+                        sieves = sieves.filter(s => s.label !== sieve.label);
+                        renderModalSieveList();
+                        renderSieveInputs();
                     };
-                    ردیف.اضافه کردن فرزند(removeBtn);
+                    row.appendChild(removeBtn);
                 }
                 modalSieveList.appendChild(row);
             });
         }
         
-        manageSievesBtn.addEventListener('کلیک', () => {
-            رندر کردن لیست غربال مودال();
-            sieveModal.classList.add('فعال');
+        manageSievesBtn.addEventListener('click', () => {
+            renderModalSieveList();
+            sieveModal.classList.add('active');
         });
 
-        closeModalBtn.addEventListener('کلیک', () => {
-            sieveModal.classList.remove('فعال');
+        closeModalBtn.addEventListener('click', () => {
+            sieveModal.classList.remove('active');
         });
         
-        addSieveBtn.addEventListener('کلیک', () => {
+        addSieveBtn.addEventListener('click', () => {
             const label = newSieveLabelInput.value.trim();
             const size = newSieveSizeInput.value.trim();
-            اگر (!label) {
-                alert('ظ„ط·ظپط§ظ‹ ظ†ط§ظ… ط³ط±ظ†ط¯ ط±ط§ ظˆط§ط±ط¯ ع©ظ†غŒط¯.');
-                بازگشت؛
+            if (!label) {
+                alert('لطفاً نام سرند را وارد کنید.');
+                return;
             }
             const sizeValue = size === '' ? null : getFloat(size);
-            اگر (sieves.find(s => s.label === label)) {
-                alert('ط³ط±ظ†ط¯غŒ ط¨ط§ ط§غŒظ† ظ†ط§ظ… ط§ط² ظ‚ط¨ظ„ ظˆط¬ظˆط¯ ط¯ط§ط±ط¯.');
-                بازگشت؛
+            if (sieves.find(s => s.label === label)) {
+                alert('سرندی با این نام از قبل وجود دارد.');
+                return;
             }
-            sieves.push({label, size: sizeValue }); (این یک کد جاوا اسکریپت است و نیازی به ترجمه ندارد.)
-            مقدار ورودی برچسب غربال جدید = '';
-            مقدار ورودی اندازه غربال جدید = '';
-            رندر کردن لیست غربال مودال();
-            رندر غربال ورودی‌ها();
+            sieves.push({ label, size: sizeValue });
+            newSieveLabelInput.value = '';
+            newSieveSizeInput.value = '';
+            renderModalSieveList();
+            renderSieveInputs();
         });
 
-        // --- شنوندگان رویداد ---
-        calculateBtn.addEventListener('کلیک'، انجام تحلیل)؛
-        resetBtn.addEventListener('کلیک'، resetProgram);
-        exportBtn.addEventListener('کلیک'، exportToExcel);
+        // --- EVENT LISTENERS ---
+        calculateBtn.addEventListener('click', performAnalysis);
+        resetBtn.addEventListener('click', resetProgram);
+        exportBtn.addEventListener('click', exportToExcel);
 
-        // --- مقداردهی اولیه ---
+        // --- INITIALIZE ---
         window.onload = () => {
-            رندر غربال ورودی‌ها();
+            renderSieveInputs();
         };
     </script>
 
 </body>
 </html>
+
