@@ -3,526 +3,408 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>آنالیز دانه بندی سنگ شکن</title>
-    <!-- اتصال به Tailwind CSS برای استایل‌دهی -->
+    <title>تحلیل غربال برای هیپ‌لیچینگ</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- اتصال به کتابخانه Chart.js برای رسم نمودار -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- اتصال به کتابخانه chartjs-plugin-zoom برای زوم نمودار -->
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        /* استایل‌های سفارشی */
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            touch-action: manipulation; /* بهبود تجربه لمسی در موبایل */
+            font-family: 'Vazirmatn', sans-serif;
         }
-        .btn {
-            @apply w-full sm:w-auto text-white font-bold py-3 px-6 rounded-lg shadow-md transition-all duration-300 ease-in-out;
+        .modal {
+            display: none; /* Hidden by default */
         }
-        .btn-primary {
-            @apply bg-blue-600 hover:bg-blue-700;
-        }
-        .btn-secondary {
-            @apply bg-green-600 hover:bg-green-700;
-        }
-        .btn-danger {
-            @apply bg-red-600 hover:bg-red-700;
-        }
-        .btn-disabled {
-            @apply bg-gray-400 cursor-not-allowed;
-        }
-        #resultsContainer {
-            scroll-behavior: smooth;
-        }
-        /* استایل برای نمایش بهتر دوربین */
-        video, canvas {
-            max-width: 100%;
-            height: auto;
-            border-radius: 0.5rem;
-        }
-        /* استایل برای مودال خطا */
-        .modal-overlay {
-            @apply fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 transition-opacity duration-300;
-        }
-        .modal-content {
-            @apply bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl max-w-sm w-full mx-4 transform transition-transform duration-300 scale-95;
+        .modal.active {
+            display: flex; /* Show when active */
         }
     </style>
 </head>
-<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+<body class="bg-gray-100">
 
-    <div class="container mx-auto p-4 max-w-4xl">
-        <header class="text-center my-6">
-            <h1 class="text-3xl sm:text-4xl font-bold text-blue-600 dark:text-blue-400">آنالیز دانه بندی محصول سنگ شکن</h1>
-            <p class="mt-2 text-lg">با استفاده از دوربین گوشی و پردازش تصویر</p>
+    <div class="container mx-auto p-4 md:p-8">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-800">تحلیل غربال برای هیپ‌لیچینگ مس اکسیدی</h1>
+            <p class="text-gray-600 mt-2">ورودی‌ها را بر حسب گرم وارد کرده و نتایج را مشاهده کنید</p>
         </header>
 
-        <main>
-            <!-- بخش راهنما و تنظیمات اولیه -->
-            <div id="setup-section" class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg mb-6">
-                <h2 class="text-2xl font-semibold mb-4 border-b pb-2">مراحل انجام کار</h2>
-                <ol class="list-decimal list-inside space-y-3">
-                    <li>سنگ‌ها را روی یک سطح صاف با رنگ متضاد (ترجیحاً سفید یا تیره یکدست) پخش کنید تا از هم جدا باشند.</li>
-                    <li>یک سکه یا شیء دایره‌ای با اندازه مشخص به عنوان مقیاس کنار سنگ‌ها قرار دهید.</li>
-                    <li>قطر سکه (به میلی‌متر) را در کادر زیر وارد کنید.</li>
-                    <li>روی دکمه "شروع دوربین" کلیک کنید و به دوربین اجازه دسترسی بدهید.</li>
-                    <li>کادر دوربین را طوری تنظیم کنید که هم سنگ‌ها و هم سکه به وضوح دیده شوند. سپس عکس بگیرید.</li>
-                    <li>پس از گرفتن عکس، روی دکمه "شروع آنالیز" کلیک کنید.</li>
-                </ol>
-                <div class="mt-4 p-3 bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 rounded-lg">
-                    <p><strong>نکته مهم:</strong> برای دسترسی به دوربین، این صفحه باید روی یک سرور امن (HTTPS) اجرا شود. اجرای مستقیم فایل از روی حافظه دستگاه ممکن است کار نکند.</p>
+        <main class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Inputs and Controls Column -->
+            <div class="lg:col-span-1 bg-white p-6 rounded-xl shadow-lg">
+                <h2 class="text-2xl font-semibold text-gray-700 border-b-2 border-cyan-500 pb-3 mb-6">ورود داده‌ها</h2>
+                <div id="sieve-inputs" class="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
+                    <!-- Sieve inputs will be dynamically generated here -->
                 </div>
-                <div class="mt-6">
-                    <label for="coin-diameter" class="block mb-2 font-medium">قطر سکه (به میلی‌متر):</label>
-                    <input type="number" id="coin-diameter" value="23.5" class="w-full p-2 border rounded-lg bg-gray-50 dark:bg-gray-700 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                 <div class="mt-6 text-center">
-                    <button id="start-camera-btn" class="btn btn-primary">۱. شروع دوربین</button>
+                <div class="grid grid-cols-2 gap-4 mt-8">
+                    <button id="calculate-btn" class="w-full bg-cyan-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-cyan-700 transition-colors shadow-md">محاسبه</button>
+                    <button id="reset-btn" class="w-full bg-red-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-red-600 transition-colors shadow-md">ریست</button>
+                    <button id="manage-sieves-btn" class="w-full col-span-2 bg-purple-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-purple-700 transition-colors shadow-md">تنظیم سرندها</button>
+                    <button id="export-btn" class="w-full col-span-2 bg-green-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-green-700 transition-colors shadow-md disabled:bg-gray-400" disabled>خروجی اکسل</button>
                 </div>
             </div>
 
-            <!-- بخش دوربین و تصویر -->
-            <div id="camera-section" class="hidden bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg mb-6">
-                <div class="relative">
-                    <video id="video" playsinline autoplay class="w-full h-auto rounded-lg"></video>
-                    <canvas id="canvas" class="hidden absolute top-0 left-0 w-full h-auto rounded-lg"></canvas>
+            <!-- Results and Charts Column -->
+            <div id="results-container" class="lg:col-span-2 bg-white p-6 rounded-xl shadow-lg hidden">
+                 <h2 class="text-2xl font-semibold text-gray-700 border-b-2 border-teal-500 pb-3 mb-6">نتایج تحلیل</h2>
+                
+                <!-- Summary Stats -->
+                <div id="summary-stats" class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center mb-8">
+                    <!-- Summary data will be injected here -->
                 </div>
-                <div class="flex flex-col sm:flex-row gap-4 mt-4">
-                    <button id="capture-btn" class="btn btn-secondary">۲. عکس بگیر</button>
-                    <button id="analyze-btn" class="btn btn-primary btn-disabled" disabled>۳. شروع آنالیز</button>
-                    <button id="reset-btn" class="btn btn-danger">ریست</button>
-                </div>
-            </div>
 
-            <!-- بخش نتایج -->
-            <div id="results-section" class="hidden bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
-                 <h2 class="text-2xl font-semibold mb-4 text-center">نتایج آنالیز</h2>
-                 <div id="status" class="text-center my-4 p-3 rounded-lg bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200">
-                    در حال پردازش... لطفاً منتظر بمانید.
-                 </div>
-                 <div class="mb-6">
-                    <canvas id="result-chart"></canvas>
-                 </div>
-                 <div>
-                    <h3 class="text-xl font-semibold mb-2">جدول توزیع اندازه دانه‌ها</h3>
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full bg-white dark:bg-gray-700 border rounded-lg">
-                            <thead class="bg-gray-200 dark:bg-gray-600">
-                                <tr>
-                                    <th class="py-2 px-4 border-b">اندازه الک (mm)</th>
-                                    <th class="py-2 px-4 border-b">درصد عبوری (Passing %)</th>
-                                </tr>
-                            </thead>
-                            <tbody id="result-table-body">
-                                <!-- ردیف‌های جدول به صورت پویا اضافه می‌شوند -->
-                            </tbody>
-                        </table>
+                <!-- Charts -->
+                <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-700 mb-4 text-center">نمودار تجمعی عبوری</h3>
+                        <canvas id="passing-chart"></canvas>
+                        <p class="text-center text-sm text-gray-500 mt-2">اندازه سرند (میکرون) - مقیاس لگاریتمی</p>
                     </div>
-                 </div>
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-700 mb-4 text-center">هیستوگرام توزیع وزن</h3>
+                        <canvas id="weight-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+             <div id="welcome-container" class="lg:col-span-2 bg-white p-6 rounded-xl shadow-lg flex items-center justify-center">
+                <p class="text-gray-500 text-xl">نتایج تحلیل پس از محاسبه در اینجا نمایش داده می‌شوند.</p>
             </div>
         </main>
     </div>
 
-    <!-- مودال نمایش خطا -->
-    <div id="error-modal" class="modal-overlay hidden opacity-0">
-        <div class="modal-content opacity-0">
-            <h3 id="error-title" class="text-xl font-bold text-red-600 dark:text-red-400 mb-4">خطا</h3>
-            <p id="error-message" class="mb-6"></p>
-            <button id="close-modal-btn" class="btn btn-primary w-full">متوجه شدم</button>
+    <!-- Sieve Management Modal -->
+    <div id="sieve-modal" class="modal fixed inset-0 bg-black bg-opacity-50 items-center justify-center p-4">
+        <div class="bg-white rounded-lg shadow-2xl p-6 w-full max-w-md">
+            <h2 class="text-2xl font-bold mb-4">مدیریت سرندها</h2>
+            <div id="modal-sieve-list" class="max-h-60 overflow-y-auto border rounded-lg p-2 mb-4">
+                <!-- List of current sieves -->
+            </div>
+            <div class="border-t pt-4">
+                <h3 class="text-lg font-semibold mb-2">افزودن سرند جدید</h3>
+                <input id="new-sieve-label" type="text" placeholder="نام سرند (مثال: 40 مش)" class="w-full p-2 border rounded mb-2">
+                <input id="new-sieve-size" type="number" placeholder="اندازه (میکرون) - برای سینی خالی بگذارید" class="w-full p-2 border rounded mb-4">
+                <div class="flex justify-between gap-4">
+                    <button id="add-sieve-btn" class="bg-blue-500 text-white px-4 py-2 rounded-lg flex-grow">افزودن</button>
+                    <button id="close-modal-btn" class="bg-gray-500 text-white px-4 py-2 rounded-lg flex-grow">بستن</button>
+                </div>
+            </div>
         </div>
     </div>
 
-<script>
-// --- دریافت المان‌های DOM ---
-const setupSection = document.getElementById('setup-section');
-const cameraSection = document.getElementById('camera-section');
-const resultsSection = document.getElementById('results-section');
-const startCameraBtn = document.getElementById('start-camera-btn');
-const video = document.getElementById('video');
-const canvas = document.getElementById('canvas');
-const captureBtn = document.getElementById('capture-btn');
-const analyzeBtn = document.getElementById('analyze-btn');
-const resetBtn = document.getElementById('reset-btn');
-const coinDiameterInput = document.getElementById('coin-diameter');
-const statusDiv = document.getElementById('status');
-const resultChartCanvas = document.getElementById('result-chart');
-const resultTableBody = document.getElementById('result-table-body');
-const context = canvas.getContext('2d', { willReadFrequently: true });
-const errorModal = document.getElementById('error-modal');
-const errorTitle = document.getElementById('error-title');
-const errorMessage = document.getElementById('error-message');
-const closeModalBtn = document.getElementById('close-modal-btn');
-let stream;
-let chart;
 
-// --- تعریف توابع ---
+    <script>
+        // --- INITIAL DATA ---
+        let sieves = [
+            { label: 'سرند 15', size: 150000 }, { label: '10 سانت', size: 100000 },
+            { label: '7.5 سانت', size: 75000 }, { label: '2 اینچ', size: 50800 },
+            { label: '1اینچ', size: 25400 }, { label: '3/4 اینچ', size: 19000 },
+            { label: '1/2 اینچ', size: 12700 }, { label: '4 مش', size: 4760 },
+            { label: '8 مش', size: 2380 }, { label: '16 مش', size: 1190 },
+            { label: '30 مش', size: 595 }, { label: '100 مش', size: 149 },
+            { label: 'سینی', size: null },
+        ];
 
-/**
- * @brief نمایش مودال خطا با پیام مشخص
- */
-function showErrorModal(message, title = "خطا") {
-    errorTitle.textContent = title;
-    errorMessage.textContent = message;
-    errorModal.classList.remove('hidden');
-    setTimeout(() => {
-        errorModal.classList.remove('opacity-0');
-        errorModal.querySelector('.modal-content').classList.remove('opacity-0', 'scale-95');
-    }, 10);
-}
+        const TARGET_VALUES = { d10: 10, d30: 30, d50: 50, d60: 60, d80: 80 };
+        let latestAnalysis = null;
+        let passingChartInstance = null;
+        let weightChartInstance = null;
 
-/**
- * @brief پنهان کردن مودال خطا
- */
-function hideErrorModal() {
-    errorModal.classList.add('opacity-0');
-    errorModal.querySelector('.modal-content').classList.add('opacity-0', 'scale-95');
-    setTimeout(() => {
-        errorModal.classList.add('hidden');
-    }, 300);
-}
+        // --- DOM ELEMENTS ---
+        const sieveInputsContainer = document.getElementById('sieve-inputs');
+        const calculateBtn = document.getElementById('calculate-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const exportBtn = document.getElementById('export-btn');
+        const resultsContainer = document.getElementById('results-container');
+        const welcomeContainer = document.getElementById('welcome-container');
+        const summaryStatsContainer = document.getElementById('summary-stats');
+        
+        // Modal elements
+        const manageSievesBtn = document.getElementById('manage-sieves-btn');
+        const sieveModal = document.getElementById('sieve-modal');
+        const closeModalBtn = document.getElementById('close-modal-btn');
+        const addSieveBtn = document.getElementById('add-sieve-btn');
+        const modalSieveList = document.getElementById('modal-sieve-list');
+        const newSieveLabelInput = document.getElementById('new-sieve-label');
+        const newSieveSizeInput = document.getElementById('new-sieve-size');
 
-/**
- * @brief شروع به کار دوربین
- */
-async function startCamera() {
-    startCameraBtn.disabled = true;
-    startCameraBtn.textContent = 'در حال باز کردن دوربین...';
-    startCameraBtn.classList.add('btn-disabled');
+        // --- UI RENDERING ---
+        function renderSieveInputs() {
+            sieveInputsContainer.innerHTML = '';
+            sieves.sort((a, b) => (b.size ?? -1) - (a.size ?? -1));
+            sieves.forEach(sieve => {
+                const div = document.createElement('div');
+                div.className = 'flex items-center gap-4';
+                const label = document.createElement('label');
+                label.className = 'w-2/3 text-right text-gray-700';
+                label.textContent = `${sieve.label} (${sieve.size ?? 'سینی'} µm):`;
+                label.htmlFor = `sieve-${sieve.label}`;
+                
+                const input = document.createElement('input');
+                input.type = 'number';
+                input.id = `sieve-${sieve.label}`;
+                input.className = 'w-1/3 p-2 border rounded-md text-left focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500';
+                input.placeholder = '0.0';
+                input.value = '0';
 
-    try {
-        if (stream) {
-            stream.getTracks().forEach(track => track.stop());
+                div.appendChild(label);
+                div.appendChild(input);
+                sieveInputsContainer.appendChild(div);
+            });
         }
-        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-            throw new Error("API دوربین در این مرورگر پشتیبانی نمی‌شود.");
+
+        // --- CALCULATION LOGIC ---
+        function getFloat(value) {
+            const num = parseFloat(value);
+            return isNaN(num) ? 0.0 : num;
         }
-        const constraints = {
-            video: {
-                facingMode: 'environment',
-                width: { ideal: 1280 },
-                height: { ideal: 720 }
+
+        function linearInterpolation(target, points) {
+            if (!points || points.length === 0) return null;
+            points.sort((a,b) => b[0] - a[0]); // Sort by passing percent descending
+            if (target >= points[0][0]) return points[0][1];
+            if (target <= points[points.length - 1][0]) return points[points.length - 1][1];
+
+            for (let i = 0; i < points.length - 1; i++) {
+                const [p_high, d_high] = points[i];
+                const [p_low, d_low] = points[i + 1];
+                if (p_high >= target && target >= p_low) {
+                    if (p_high - p_low === 0) return d_high;
+                    const fraction = (p_high - target) / (p_high - p_low);
+                    return d_high + (d_low - d_high) * fraction;
+                }
             }
-        };
-        stream = await navigator.mediaDevices.getUserMedia(constraints);
-        video.srcObject = stream;
-        video.classList.remove('hidden');
-        canvas.classList.add('hidden');
-        setupSection.classList.add('hidden');
-        cameraSection.classList.remove('hidden');
-        resultsSection.classList.add('hidden');
-        analyzeBtn.disabled = true;
-        analyzeBtn.classList.add('btn-disabled');
-        captureBtn.disabled = false;
-        captureBtn.classList.remove('btn-disabled');
-    } catch (err) {
-        console.error("خطا در دسترسی به دوربین: ", err);
-        let message = "یک خطای ناشناخته رخ داد.";
-        if (err.name === "NotAllowedError") {
-            message = "شما اجازه دسترسی به دوربین را ندادید. لطفاً مجوز لازم را در تنظیمات مرورگر خود فعال کنید.";
-        } else if (err.name === "NotFoundError") {
-            message = "هیچ دوربین پشتی بر روی دستگاه شما پیدا نشد.";
-        } else if (err.name === "NotReadableError") {
-            message = "دوربین توسط یک برنامه دیگر در حال استفاده است یا یک مشکل سخت‌افزاری وجود دارد.";
-        } else if (err.name === "SecurityError" || err.name === "TypeError") {
-            message = "دسترسی به دوربین به دلایل امنیتی مسدود شده است. لطفاً مطمئن شوید که صفحه از طریق یک اتصال امن (HTTPS) بارگیری شده است.";
+            return null;
         }
-        showErrorModal(message, "خطا در دسترسی به دوربین");
-    } finally {
-        startCameraBtn.disabled = false;
-        startCameraBtn.textContent = '۱. شروع دوربین';
-        startCameraBtn.classList.remove('btn-disabled');
-    }
-}
 
-/**
- * @brief گرفتن عکس از ویدیو و نمایش آن روی بوم
- */
-function captureImage() {
-    captureBtn.disabled = true;
-    captureBtn.textContent = 'در حال پردازش...';
-    captureBtn.classList.add('btn-disabled');
+        function performAnalysis() {
+            const weights = sieves.map(sieve => getFloat(document.getElementById(`sieve-${sieve.label}`).value));
+            const totalWeight = weights.reduce((sum, w) => sum + w, 0);
 
-    // استفاده از setTimeout برای اطمینان از آمادگی کامل ویدیو
-    setTimeout(() => {
-        try {
-            if (!video.videoWidth || !video.videoHeight) {
-                throw new Error("ابعاد ویدیو هنوز در دسترس نیست. لطفاً لحظه‌ای صبر کرده و دوباره امتحان کنید.");
+            if (totalWeight === 0) {
+                alert('مجموع وزن‌ها نمی‌تواند صفر باشد.');
+                return;
             }
 
-            console.log("Drawing image to canvas...");
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            context.drawImage(video, 0, 0, canvas.width, canvas.height);
-            
-            video.classList.add('hidden');
-            canvas.classList.remove('hidden');
+            const percents = weights.map(w => (w / totalWeight) * 100);
+            const cumRetained = [];
+            let cum = 0.0;
+            percents.forEach(p => {
+                cum += p;
+                cumRetained.push(cum);
+            });
+            const percentPassing = cumRetained.map(cr => 100 - cr);
 
-            console.log("Stopping camera stream...");
-            if (stream) {
-                stream.getTracks().forEach(track => track.stop());
-                stream = null;
-            }
-
-            console.log("Enabling analyze button.");
-            analyzeBtn.disabled = false;
-            analyzeBtn.classList.remove('btn-disabled');
-            
-        } catch (err) {
-            console.error("خطا در گرفتن عکس: ", err);
-            showErrorModal(`خطایی در هنگام گرفتن عکس رخ داد: ${err.message}`, "خطا در عکس‌برداری");
-            // در صورت خطا، دکمه را به حالت اولیه برگردان
-            captureBtn.disabled = false;
-            captureBtn.textContent = '۲. عکس بگیر';
-            captureBtn.classList.remove('btn-disabled');
-        }
-    }, 100); // تاخیر ۱۰۰ میلی‌ثانیه‌ای
-}
-
-/**
- * @brief ریست کردن برنامه به حالت اولیه
- */
-function resetApp() {
-    if (stream) {
-        stream.getTracks().forEach(track => track.stop());
-        stream = null;
-    }
-    video.srcObject = null;
-
-    setupSection.classList.remove('hidden');
-    cameraSection.classList.add('hidden');
-    resultsSection.classList.add('hidden');
-    
-    video.classList.remove('hidden');
-    canvas.classList.add('hidden');
-    context.clearRect(0, 0, canvas.width, canvas.height);
-
-    captureBtn.disabled = false;
-    captureBtn.textContent = '۲. عکس بگیر';
-    captureBtn.classList.remove('btn-disabled');
-
-    analyzeBtn.disabled = true;
-    analyzeBtn.classList.add('btn-disabled');
-
-    if (chart) {
-        chart.destroy();
-    }
-    resultTableBody.innerHTML = '';
-    hideErrorModal();
-}
-
-/**
- * @brief تابع اصلی برای آنالیز تصویر
- */
-function analyzeImage() {
-    if (canvas.width === 0 || canvas.height === 0) {
-        showErrorModal("بوم خالی است. لطفاً ابتدا یک عکس بگیرید.", "خطای آنالیز");
-        return;
-    }
-    resultsSection.classList.remove('hidden');
-    window.scrollTo({ top: resultsSection.offsetTop, behavior: 'smooth' });
-    statusDiv.textContent = 'در حال پردازش... این فرآیند ممکن است چند لحظه طول بکشد.';
-    statusDiv.className = 'text-center my-4 p-3 rounded-lg bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200';
-    statusDiv.classList.remove('hidden');
-
-    setTimeout(() => {
-        try {
-            const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-            const { data, width, height } = imageData;
-
-            const threshold = 120; 
-            for (let i = 0; i < data.length; i += 4) {
-                const gray = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
-                const value = gray < threshold ? 0 : 255;
-                data[i] = data[i + 1] = data[i + 2] = value;
-            }
-
-            const labels = findComponents(imageData);
-            const componentAreas = calculateAreas(labels);
-
-            const coinDiameterMM = parseFloat(coinDiameterInput.value);
-            if (isNaN(coinDiameterMM) || coinDiameterMM <= 0) {
-                throw new Error("مقدار قطر سکه نامعتبر است.");
-            }
-            
-            let coinComponentIndex = -1;
-            let maxArea = 0;
-            componentAreas.forEach((area, index) => {
-                if (area > maxArea) {
-                    maxArea = area;
-                    coinComponentIndex = index;
+            const interpPoints = [];
+            sieves.forEach((sieve, i) => {
+                if (sieve.size !== null) {
+                    interpPoints.push([percentPassing[i], sieve.size]);
                 }
             });
 
-            if (coinComponentIndex === -1 || maxArea < 100) {
-                throw new Error("سکه در تصویر پیدا نشد. لطفاً مطمئن شوید سکه به وضوح در تصویر مشخص است، رنگ آن با پس‌زمینه تضاد دارد و بزرگترین جسم در تصویر است.");
+            const dValues = {};
+            for (const key in TARGET_VALUES) {
+                dValues[key] = linearInterpolation(TARGET_VALUES[key], interpPoints);
             }
-            
-            const coinAreaPixels = maxArea;
-            const pixelsPerMm2 = coinAreaPixels / (Math.PI * Math.pow(coinDiameterMM / 2, 2));
 
-            const particleSizesMM = [];
-            componentAreas.forEach((area, index) => {
-                if (index !== coinComponentIndex && area > 20) {
-                    const areaMM2 = area / pixelsPerMm2;
-                    const equivalentDiameter = Math.sqrt(4 * areaMM2 / Math.PI);
-                    particleSizesMM.push(equivalentDiameter);
-                }
-            });
-
-            if (particleSizesMM.length === 0) {
-                throw new Error("هیچ سنگی برای آنالیز پیدا نشد. لطفاً از تضاد کافی بین سنگ‌ها و پس‌زمینه اطمینان حاصل کنید.");
+            let Cu = null;
+            if (dValues.d10 && dValues.d10 > 0 && dValues.d60) {
+                Cu = dValues.d60 / dValues.d10;
             }
+
+            let Cc = null;
+            if (dValues.d10 && dValues.d60 && dValues.d30 && dValues.d10 > 0 && dValues.d60 > 0) {
+                Cc = Math.pow(dValues.d30, 2) / (dValues.d10 * dValues.d60);
+            }
+
+            latestAnalysis = {
+                weights, percents, cumRetained, percentPassing, dValues, Cu, Cc, totalWeight
+            };
             
-            displayResults(particleSizesMM);
-
-            statusDiv.textContent = `آنالیز با موفقیت انجام شد. ${particleSizesMM.length} سنگ شناسایی شد.`;
-            statusDiv.className = 'text-center my-4 p-3 rounded-lg bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200';
-
-        } catch (e) {
-            console.error("خطا در آنالیز تصویر:", e);
-            statusDiv.textContent = `خطا: ${e.message}`;
-            statusDiv.className = 'text-center my-4 p-3 rounded-lg bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200';
+            displayResults();
+            exportBtn.disabled = false;
         }
-    }, 100);
-}
 
-/**
- * @brief الگوریتم ساده برای پیدا کردن اجزای متصل
- */
-function findComponents(imageData) {
-    const { data, width, height } = imageData;
-    const labels = new Uint32Array(width * height);
-    let nextLabel = 1;
-    const q = [];
+        function displayResults() {
+            welcomeContainer.classList.add('hidden');
+            resultsContainer.classList.remove('hidden');
 
-    for (let y = 1; y < height - 1; y++) {
-        for (let x = 1; x < width - 1; x++) {
-            const i = (y * width + x);
-            if (data[i*4] === 0 && labels[i] === 0) {
-                q.length = 0;
-                q.push(i);
-                labels[i] = nextLabel;
-                let head = 0;
-                while(head < q.length){
-                    const current = q[head++];
-                    const cx = current % width;
-                    const cy = Math.floor(current / width);
-                    for(let ny = cy - 1; ny <= cy + 1; ny++){
-                        for(let nx = cx - 1; nx <= cx + 1; nx++){
-                            if(nx >= 0 && nx < width && ny >= 0 && ny < height){
-                                const neighborIndex = ny * width + nx;
-                                if(data[neighborIndex*4] === 0 && labels[neighborIndex] === 0){
-                                    labels[neighborIndex] = nextLabel;
-                                    q.push(neighborIndex);
-                                }
-                            }
-                        }
+            // **FIX**: Added d50 and d80 to the display grid
+            summaryStatsContainer.innerHTML = `
+                <div class="bg-gray-100 p-3 rounded-lg"><p class="text-sm text-gray-500">D10</p><p class="text-xl font-bold text-gray-800">${latestAnalysis.dValues.d10?.toFixed(2) ?? 'N/A'}</p></div>
+                <div class="bg-gray-100 p-3 rounded-lg"><p class="text-sm text-gray-500">D30</p><p class="text-xl font-bold text-gray-800">${latestAnalysis.dValues.d30?.toFixed(2) ?? 'N/A'}</p></div>
+                <div class="bg-gray-100 p-3 rounded-lg"><p class="text-sm text-gray-500">D50</p><p class="text-xl font-bold text-gray-800">${latestAnalysis.dValues.d50?.toFixed(2) ?? 'N/A'}</p></div>
+                <div class="bg-gray-100 p-3 rounded-lg"><p class="text-sm text-gray-500">D60</p><p class="text-xl font-bold text-gray-800">${latestAnalysis.dValues.d60?.toFixed(2) ?? 'N/A'}</p></div>
+                <div class="bg-gray-100 p-3 rounded-lg"><p class="text-sm text-gray-500">D80</p><p class="text-xl font-bold text-gray-800">${latestAnalysis.dValues.d80?.toFixed(2) ?? 'N/A'}</p></div>
+                <div class="bg-gray-100 p-3 rounded-lg"><p class="text-sm text-gray-500">Cu</p><p class="text-xl font-bold text-gray-800">${latestAnalysis.Cu?.toFixed(2) ?? 'N/A'}</p></div>
+                <div class="bg-gray-100 p-3 rounded-lg"><p class="text-sm text-gray-500">Cc</p><p class="text-xl font-bold text-gray-800">${latestAnalysis.Cc?.toFixed(2) ?? 'N/A'}</p></div>
+                <div class="bg-gray-100 p-3 rounded-lg"><p class="text-sm text-gray-500">Total Weight</p><p class="text-xl font-bold text-gray-800">${latestAnalysis.totalWeight?.toFixed(2) ?? 'N/A'} g</p></div>
+            `;
+            
+            updateCharts();
+        }
+
+        function updateCharts() {
+            // Passing Chart
+            const passingCtx = document.getElementById('passing-chart').getContext('2d');
+            const passingData = sieves
+                .map((s, i) => ({ x: s.size, y: latestAnalysis.percentPassing[i] }))
+                .filter(d => d.x !== null)
+                .sort((a,b) => a.x - b.x);
+
+            if (passingChartInstance) passingChartInstance.destroy();
+            passingChartInstance = new Chart(passingCtx, {
+                type: 'line',
+                data: {
+                    datasets: [{
+                        label: 'درصد عبوری',
+                        data: passingData,
+                        borderColor: 'rgb(22, 163, 74)',
+                        backgroundColor: 'rgba(22, 163, 74, 0.2)',
+                        fill: true,
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: { type: 'logarithmic', title: { display: false } },
+                        y: { beginAtZero: true, max: 100, title: { display: true, text: 'درصد عبوری (%)' } }
                     }
                 }
-                nextLabel++;
-            }
-        }
-    }
-    return labels;
-}
+            });
 
-/**
- * @brief محاسبه مساحت هر جزء
- */
-function calculateAreas(labels) {
-    const areas = new Map();
-    for (let i = 0; i < labels.length; i++) {
-        const label = labels[i];
-        if (label > 0) {
-            areas.set(label, (areas.get(label) || 0) + 1);
-        }
-    }
-    return areas;
-}
-
-/**
- * @brief نمایش نتایج در نمودار و جدول
- */
-function displayResults(sizes) {
-    const sieveSizes = [75, 63, 50, 37.5, 25, 19, 12.5, 9.5, 4.75, 2.36, 1.18, 0.6, 0.3, 0.15, 0.075];
-    sieveSizes.sort((a, b) => b - a);
-
-    const totalParticles = sizes.length;
-    let passingPercentages = [];
-
-    sieveSizes.forEach(sieveSize => {
-        const passingCount = sizes.filter(particleSize => particleSize <= sieveSize).length;
-        const passingPercent = (passingCount / totalParticles) * 100;
-        passingPercentages.push(passingPercent);
-    });
-    
-    resultTableBody.innerHTML = '';
-    if (chart) {
-        chart.destroy();
-    }
-
-    sieveSizes.forEach((size, index) => {
-        const row = `<tr>
-            <td class="py-2 px-4 border-b text-center">${size}</td>
-            <td class="py-2 px-4 border-b text-center">${passingPercentages[index].toFixed(2)}%</td>
-        </tr>`;
-        resultTableBody.innerHTML += row;
-    });
-
-    const chartData = {
-        labels: sieveSizes.map(String),
-        datasets: [{
-            label: 'درصد عبوری (Passing %)',
-            data: passingPercentages,
-            borderColor: 'rgb(59, 130, 246)',
-            backgroundColor: 'rgba(59, 130, 246, 0.2)',
-            fill: true,
-            tension: 0.1
-        }]
-    };
-
-    chart = new Chart(resultChartCanvas, {
-        type: 'line',
-        data: chartData,
-        options: {
-            responsive: true,
-            plugins: {
-                title: { display: true, text: 'نمودار منحنی دانه‌بندی', font: { size: 18 } },
-                legend: { position: 'top' },
-                zoom: {
-                    zoom: { wheel: { enabled: true }, pinch: { enabled: true }, mode: 'x' },
-                    pan: { enabled: true, mode: 'x' }
-                }
-            },
-            scales: {
-                x: {
-                    type: 'logarithmic',
-                    title: { display: true, text: 'اندازه الک (mm) - مقیاس لگاریتمی' },
-                    reverse: true
+            // Weight Chart
+            const weightCtx = document.getElementById('weight-chart').getContext('2d');
+            const weightData = sieves.filter(s => s.size !== null);
+            if (weightChartInstance) weightChartInstance.destroy();
+            weightChartInstance = new Chart(weightCtx, {
+                type: 'bar',
+                data: {
+                    labels: weightData.map(s => s.label),
+                    datasets: [{
+                        label: 'وزن باقی‌مانده (گرم)',
+                        data: latestAnalysis.weights.slice(0, weightData.length),
+                        backgroundColor: 'rgba(59, 130, 246, 0.6)',
+                        borderColor: 'rgb(59, 130, 246)',
+                        borderWidth: 1
+                    }]
                 },
-                y: {
-                    title: { display: true, text: 'درصد عبوری' },
-                    min: 0,
-                    max: 100
-                }
-            }
+                options: { responsive: true, scales: { y: { beginAtZero: true } } }
+            });
         }
-    });
-}
+        
+        function resetProgram() {
+            renderSieveInputs(); // This will reset inputs to 0
+            latestAnalysis = null;
+            resultsContainer.classList.add('hidden');
+            welcomeContainer.classList.remove('hidden');
+            exportBtn.disabled = true;
+            if (passingChartInstance) passingChartInstance.destroy();
+            if (weightChartInstance) weightChartInstance.destroy();
+        }
 
-// --- اتصال Event Listeners ---
-startCameraBtn.addEventListener('click', startCamera);
-captureBtn.addEventListener('click', captureImage);
-analyzeBtn.addEventListener('click', analyzeImage);
-resetBtn.addEventListener('click', resetApp);
-closeModalBtn.addEventListener('click', hideErrorModal);
-errorModal.addEventListener('click', (e) => {
-    if (e.target === errorModal) {
-        hideErrorModal();
-    }
-});
+        // --- EXCEL EXPORT ---
+        function exportToExcel() {
+            if (!latestAnalysis) {
+                alert('ابتدا تحلیل را انجام دهید.');
+                return;
+            }
+            // **FIX**: Added d50 and d80 to the export data
+            const rawData = sieves.map((sieve, i) => ({
+                'سرند': sieve.label,
+                'اندازه (میکرون)': sieve.size ?? '',
+                'وزن (گرم)': latestAnalysis.weights[i],
+                'درصد نگه‌داری': latestAnalysis.percents[i],
+                'درصد تجمعی نگه‌داری': latestAnalysis.cumRetained[i],
+                'درصد عبوری': latestAnalysis.percentPassing[i],
+            }));
+            const summaryData = [
+                { 'پارامتر': 'd10', 'مقدار': latestAnalysis.dValues.d10 },
+                { 'پارامتر': 'd30', 'مقدار': latestAnalysis.dValues.d30 },
+                { 'پارامتر': 'd50', 'مقدار': latestAnalysis.dValues.d50 },
+                { 'پارامتر': 'd60', 'مقدار': latestAnalysis.dValues.d60 },
+                { 'پارامتر': 'd80', 'مقدار': latestAnalysis.dValues.d80 },
+                { 'پارامتر': 'Cu', 'مقدار': latestAnalysis.Cu },
+                { 'پارامتر': 'Cc', 'مقدار': latestAnalysis.Cc },
+            ];
+            const wb = XLSX.utils.book_new();
+            const wsRaw = XLSX.utils.json_to_sheet(rawData);
+            const wsSummary = XLSX.utils.json_to_sheet(summaryData);
+            XLSX.utils.book_append_sheet(wb, wsRaw, 'Raw Data');
+            XLSX.utils.book_append_sheet(wb, wsSummary, 'Summary');
 
-</script>
+            // **FIX**: Changed export method for better mobile compatibility
+            const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+            const blob = new Blob([wbout], { type: 'application/octet-stream' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'SieveAnalysisResults.xlsx';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // --- MODAL LOGIC ---
+        function renderModalSieveList() {
+            modalSieveList.innerHTML = '';
+            sieves.forEach(sieve => {
+                const row = document.createElement('div');
+                row.className = 'flex justify-between items-center p-2 border-b';
+                row.innerHTML = `<span>${sieve.label} (${sieve.size ?? 'سینی'} µm)</span>`;
+                if (sieve.label !== 'سینی') {
+                    const removeBtn = document.createElement('button');
+                    removeBtn.textContent = 'حذف';
+                    removeBtn.className = 'text-red-500 hover:text-red-700 font-semibold';
+                    removeBtn.onclick = () => {
+                        sieves = sieves.filter(s => s.label !== sieve.label);
+                        renderModalSieveList();
+                        renderSieveInputs();
+                    };
+                    row.appendChild(removeBtn);
+                }
+                modalSieveList.appendChild(row);
+            });
+        }
+        
+        manageSievesBtn.addEventListener('click', () => {
+            renderModalSieveList();
+            sieveModal.classList.add('active');
+        });
+
+        closeModalBtn.addEventListener('click', () => {
+            sieveModal.classList.remove('active');
+        });
+        
+        addSieveBtn.addEventListener('click', () => {
+            const label = newSieveLabelInput.value.trim();
+            const size = newSieveSizeInput.value.trim();
+            if (!label) {
+                alert('لطفاً نام سرند را وارد کنید.');
+                return;
+            }
+            const sizeValue = size === '' ? null : getFloat(size);
+            if (sieves.find(s => s.label === label)) {
+                alert('سرندی با این نام از قبل وجود دارد.');
+                return;
+            }
+            sieves.push({ label, size: sizeValue });
+            newSieveLabelInput.value = '';
+            newSieveSizeInput.value = '';
+            renderModalSieveList();
+            renderSieveInputs();
+        });
+
+        // --- EVENT LISTENERS ---
+        calculateBtn.addEventListener('click', performAnalysis);
+        resetBtn.addEventListener('click', resetProgram);
+        exportBtn.addEventListener('click', exportToExcel);
+
+        // --- INITIALIZE ---
+        window.onload = () => {
+            renderSieveInputs();
+        };
+    </script>
 
 </body>
 </html>
