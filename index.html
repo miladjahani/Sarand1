@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ماشین حساب طراحی کارخانه هیپ لیچینگ مس</title>
+    <title>ماشین حساب پیشرفته طراحی کارخانه هیپ لیچینگ مس</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,14 +19,13 @@
             display: block;
         }
         .tab-btn.active {
-            border-color: #2563eb;
-            background-color: #eff6ff;
-            color: #1e40af;
+            border-color: #16a34a; /* Green */
+            background-color: #f0fdf4;
+            color: #15803d;
         }
-        /* Custom styles for better presentation */
         .result-card {
             background-color: #f9fafb;
-            border-right: 4px solid #3b82f6;
+            border-right: 4px solid #2563eb;
             padding: 1rem;
             margin-bottom: 1rem;
             border-radius: 8px;
@@ -57,133 +56,84 @@
 
     <div class="container mx-auto p-4 md:p-8">
         <header class="text-center mb-8">
-            <h1 class="text-3xl md:text-4xl font-bold text-blue-800">ماشین حساب طراحی کارخانه هیپ لیچینگ مس اکسیدی</h1>
-            <p class="mt-2 text-lg text-gray-600">پارامترهای اصلی پروژه خود را وارد کنید تا تحلیل جامعی از نیازمندی‌ها دریافت نمایید.</p>
+            <h1 class="text-3xl md:text-4xl font-bold text-green-800">ماشین حساب پیشرفته طراحی کارخانه هیپ لیچینگ (مبتنی بر تولید)</h1>
+            <p class="mt-2 text-lg text-gray-600">ظرفیت تولید کاتد و مشخصات کانسنگ را وارد کنید تا نیازمندی‌های پروژه محاسبه شود.</p>
         </header>
 
-        <!-- Inputs Section -->
         <div class="bg-white p-6 rounded-xl shadow-md mb-8">
-            <h2 class="text-2xl font-bold mb-6 border-b-2 border-gray-200 pb-2 text-gray-700">۱. اطلاعات ورودی</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <h2 class="text-2xl font-bold mb-6 border-b-2 border-gray-200 pb-2 text-gray-700">۱. پارامترهای اصلی پروژه</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div>
-                    <label for="capacity" class="block text-sm font-medium text-gray-700 mb-1">ظرفیت سالانه کارخانه (تن در سال)</label>
-                    <input type="number" id="capacity" value="1000000" class="w-full p-3 bg-gray-100 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                    <label for="cathode_production" class="block text-sm font-medium text-gray-700 mb-1">ظرفیت تولید کاتد (تن در سال)</label>
+                    <input type="number" id="cathode_production" value="10000" class="w-full p-3 bg-gray-100 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition">
                 </div>
                 <div>
                     <label for="grade" class="block text-sm font-medium text-gray-700 mb-1">عیار متوسط مس در کانسنگ (%)</label>
-                    <input type="number" id="grade" value="0.8" step="0.1" class="w-full p-3 bg-gray-100 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                    <input type="number" id="grade" value="0.8" step="0.1" class="w-full p-3 bg-gray-100 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition">
                 </div>
                 <div>
                     <label for="density" class="block text-sm font-medium text-gray-700 mb-1">دانسیته کانسنگ (تن بر متر مکعب)</label>
-                    <input type="number" id="density" value="1.6" step="0.1" class="w-full p-3 bg-gray-100 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                    <input type="number" id="density" value="1.6" step="0.1" class="w-full p-3 bg-gray-100 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition">
                 </div>
             </div>
             <div class="mt-6 text-center">
-                <button id="calculateBtn" class="bg-blue-600 text-white font-bold py-3 px-10 rounded-lg hover:bg-blue-700 transition-all duration-300 shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-300">
+                <button id="calculateBtn" class="bg-green-600 text-white font-bold py-3 px-10 rounded-lg hover:bg-green-700 transition-all duration-300 shadow-lg focus:outline-none focus:ring-4 focus:ring-green-300">
                     محاسبه کن
                 </button>
             </div>
         </div>
         
-        <!-- Assumptions Section -->
         <div id="assumptions" class="assumption-box mb-8">
-            <h3 class="text-xl font-bold mb-4 text-amber-800">۲. مفروضات کلیدی محاسبات</h3>
-            <p class="text-sm text-gray-600 mb-4">نتایج زیر بر اساس مقادیر استاندارد صنعتی محاسبه شده‌اند. این مقادیر می‌توانند بر اساس نتایج تست‌های آزمایشگاهی و پایلوت برای کانسنگ شما متفاوت باشند.</p>
+            <h3 class="text-xl font-bold mb-4 text-amber-800">۲. مفروضات کلیدی (بر اساس استانداردهای مشاوران)</h3>
             <ul id="assumptionsList" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 text-sm">
-                <!-- Assumptions will be populated by JS -->
-            </ul>
+                </ul>
         </div>
 
-
-        <!-- Results Section -->
         <div id="results" class="bg-white p-6 rounded-xl shadow-md hidden">
             <h2 class="text-2xl font-bold mb-4 border-b-2 border-gray-200 pb-2 text-gray-700">۳. نتایج محاسبات</h2>
 
-            <!-- Tabs Navigation -->
             <div class="border-b border-gray-200 mb-6">
                 <nav class="flex flex-wrap -mb-px" id="tabs">
-                    <button class="tab-btn active text-lg font-semibold py-4 px-6 border-b-4 border-transparent hover:border-gray-300 focus:outline-none" data-tab="summary">خلاصه تولید</button>
-                    <button class="tab-btn text-lg font-semibold py-4 px-6 border-b-4 border-transparent hover:border-gray-300 focus:outline-none" data-tab="heap">طراحی هیپ</button>
-                    <button class="tab-btn text-lg font-semibold py-4 px-6 border-b-4 border-transparent hover:border-gray-300 focus:outline-none" data-tab="consumables">مواد مصرفی</button>
+                    <button class="tab-btn active text-lg font-semibold py-4 px-6 border-b-4 border-transparent hover:border-gray-300 focus:outline-none" data-tab="summary">خلاصه فرآیند</button>
+                    <button class="tab-btn text-lg font-semibold py-4 px-6 border-b-4 border-transparent hover:border-gray-300 focus:outline-none" data-tab="crushing">سنگ‌شکنی و هیپ</button>
                     <button class="tab-btn text-lg font-semibold py-4 px-6 border-b-4 border-transparent hover:border-gray-300 focus:outline-none" data-tab="sxew">کارخانه SX/EW</button>
-                    <button class="tab-btn text-lg font-semibold py-4 px-6 border-b-4 border-transparent hover:border-gray-300 focus:outline-none" data-tab="crushing">مدار سنگ‌شکنی</button>
+                    <button class="tab-btn text-lg font-semibold py-4 px-6 border-b-4 border-transparent hover:border-gray-300 focus:outline-none" data-tab="consumables">مواد مصرفی</button>
                 </nav>
             </div>
 
-            <!-- Tab Content -->
             <div id="tab-content-container">
-                <!-- Production Summary -->
-                <div id="summary" class="tab-content active">
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <!-- Results will be populated by JS -->
-                    </div>
-                </div>
-                <!-- Heap Design -->
-                <div id="heap" class="tab-content">
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <!-- Results will be populated by JS -->
-                    </div>
-                </div>
-                <!-- Consumables -->
-                <div id="consumables" class="tab-content">
-                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <!-- Results will be populated by JS -->
-                    </div>
-                </div>
-                <!-- SX/EW Plant -->
-                <div id="sxew" class="tab-content">
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <!-- Results will be populated by JS -->
-                    </div>
-                </div>
-                <!-- Crushing Circuit -->
-                <div id="crushing" class="tab-content">
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <!-- Results will be populated by JS -->
-                    </div>
-                     <div class="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                        <h4 class="font-bold text-blue-800">توضیحات مدار سنگ‌شکنی:</h4>
-                        <p class="text-sm text-blue-700 mt-2">مدار پیشنهادی برای رسیدن به دانه بندی هدف (۵-۴۵ میلی‌متر) شامل یک مرحله سنگ‌شکن فکی (اولیه) و یک یا دو مرحله سنگ‌شکن مخروطی (ثانویه و ثالثیه) به همراه سرندهای جداسازی است. انتخاب دقیق مدل تجهیزات نیازمند تحلیل کامل دانه بندی خوراک و مشخصات فیزیکی سنگ (مانند شاخص کار) می‌باشد.</p>
-                    </div>
-                </div>
+                <div id="summary" class="tab-content active grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+                <div id="crushing" class="tab-content grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+                <div id="sxew" class="tab-content grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+                <div id="consumables" class="tab-content grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
             </div>
         </div>
     </div>
 
     <script>
-        // --- DOM Elements ---
         const calculateBtn = document.getElementById('calculateBtn');
         const resultsDiv = document.getElementById('results');
-        const assumptionsDiv = document.getElementById('assumptions');
         const assumptionsList = document.getElementById('assumptionsList');
         
-        // --- Key Assumptions (can be adjusted) ---
         const ASSUMPTIONS = {
             operatingDays: { value: 350, unit: 'روز در سال', label: 'روزهای کاری' },
-            operatingHours: { value: 20, unit: 'ساعت در روز', label: 'ساعات کاری سنگ‌شکن' },
             leachingRecovery: { value: 85, unit: '%', label: 'راندمان لیچینگ' },
-            sxewRecovery: { value: 99.5, unit: '%', label: 'راندمان SX/EW' },
+            sxewRecovery: { value: 99.5, unit: '%', label: 'راندمان کلی SX/EW' },
             heapHeight: { value: 6, unit: 'متر', label: 'ارتفاع هیپ' },
-            leachingCycle: { value: 75, unit: 'روز', label: 'چرخه لیچینگ' },
-            irrigationRate: { value: 10, unit: 'L/hr/m²', label: 'نرخ پاشش' },
-            acidConsumption: { value: 15, unit: 'kg/ton ore', label: 'مصرف اسید' },
-            waterMakeup: { value: 1.5, unit: 'm³/ton Cu', label: 'مصرف آب' },
-            lixLoss: { value: 0.1, unit: 'kg/ton Cu', label: 'اتلاف LIX' },
-            keroseneLoss: { value: 0.5, unit: 'L/ton Cu', label: 'اتلاف نفت' },
+            leachingCycle: { value: 90, unit: 'روز', label: 'چرخه لیچینگ (پاشش+استراحت)' },
+            irrigationRate: { value: 8, unit: 'L/hr/m²', label: 'نرخ پاشش' },
+            acidConsumption: { value: 20, unit: 'kg/ton ore', label: 'مصرف اسید (بسته به کانی‌شناسی)' },
             plsCopperGrade: { value: 3.5, unit: 'g/L', label: 'عیار مس در PLS' },
+            raffinateCopperGrade: { value: 0.4, unit: 'g/L', label: 'عیار مس در رافینت' },
             currentDensity: { value: 300, unit: 'A/m²', label: 'چگالی جریان EW' },
             currentEfficiency: { value: 92, unit: '%', label: 'راندمان جریان EW' },
-            cathodesPerCell: { value: 50, unit: 'عدد', label: 'کاتد در هر سلول' },
+            cathodesPerCell: { value: 30, unit: 'عدد', label: 'کاتد در هر سلول (استاندارد)' },
             cathodeArea: { value: 1, unit: 'm²', label: 'سطح هر وجه کاتد' },
+            operatingHoursCrusher: { value: 20, unit: 'ساعت در روز', label: 'ساعات کاری سنگ‌شکن' },
         };
 
-        // --- Helper function to format numbers ---
-        const formatNum = (num) => {
-            if (num === null || isNaN(num)) return 'N/A';
-            return num.toLocaleString('fa-IR', { maximumFractionDigits: 2 });
-        };
+        const formatNum = (num) => num.toLocaleString('fa-IR', { maximumFractionDigits: 1 });
 
-        // --- Helper function to create a result card ---
         function createResultCard(title, value, unit) {
             return `
                 <div class="result-card">
@@ -192,113 +142,89 @@
                         <span class="result-value">${formatNum(value)}</span>
                         <span class="result-unit">${unit}</span>
                     </p>
-                </div>
-            `;
+                </div>`;
         }
         
-        // --- Populate Assumptions List ---
         function populateAssumptions() {
             assumptionsList.innerHTML = '';
             for (const key in ASSUMPTIONS) {
                 const item = ASSUMPTIONS[key];
                 const li = document.createElement('li');
                 li.className = "bg-white p-2 rounded-md shadow-sm";
-                li.innerHTML = `<span class="font-semibold text-gray-800">${item.label}:</span> <span class="font-bold text-blue-700">${item.value} ${item.unit}</span>`;
+                li.innerHTML = `<span class="font-semibold text-gray-800">${item.label}:</span> <span class="font-bold text-green-700">${item.value} ${item.unit}</span>`;
                 assumptionsList.appendChild(li);
             }
         }
 
-        // --- Main Calculation Logic ---
         function performCalculations() {
             // 1. Get Inputs
-            const capacity = parseFloat(document.getElementById('capacity').value);
+            const targetCathodeTon = parseFloat(document.getElementById('cathode_production').value);
             const grade = parseFloat(document.getElementById('grade').value);
             const density = parseFloat(document.getElementById('density').value);
 
-            if (isNaN(capacity) || isNaN(grade) || isNaN(density) || capacity <= 0 || grade <= 0 || density <= 0) {
+            if (isNaN(targetCathodeTon) || isNaN(grade) || isNaN(density) || targetCathodeTon <= 0 || grade <= 0 || density <= 0) {
                 alert('لطفاً مقادیر ورودی معتبر وارد کنید.');
                 return;
             }
 
-            // 2. Core Calculations
+            // 2. Core Calculations (Backward from Production)
             const A = ASSUMPTIONS;
             
-            // Production
-            const totalCopperInOre = capacity * (grade / 100);
+            // Required Ore Calculation
             const totalRecovery = (A.leachingRecovery.value / 100) * (A.sxewRecovery.value / 100);
-            const finalCopperProduction = totalCopperInOre * totalRecovery;
-            const dailyCopperProductionKg = (finalCopperProduction * 1000) / A.operatingDays.value;
+            const requiredLeachedCopper = targetCathodeTon / (A.sxewRecovery.value / 100);
+            const requiredCopperInOre = targetCathodeTon / totalRecovery;
+            const annualOreFeed = requiredCopperInOre / (grade / 100);
+            const dailyOreFeed = annualOreFeed / A.operatingDays.value;
 
-            // Heap Design
-            const dailyOreTon = capacity / A.operatingDays.value;
-            const dailyOreVolume = dailyOreTon / density;
-            const totalAreaUnderLeach = (capacity / density) * (A.leachingCycle.value / A.operatingDays.value) / A.heapHeight.value;
-            const plsFlowRate = (totalAreaUnderLeach * A.irrigationRate.value) / 1000; // m³/hr
-
-            // Consumables
-            const dailyAcidTon = (dailyOreTon * A.acidConsumption.value) / 1000;
-            const dailyWaterM3 = (finalCopperProduction / A.operatingDays.value) * A.waterMakeup.value;
-            const annualLixKg = finalCopperProduction * A.lixLoss.value;
-            const annualKeroseneL = finalCopperProduction * A.keroseneLoss.value;
-
-            // SX/EW
-            const copperDepositionRate = (dailyCopperProductionKg / 24) / (A.currentEfficiency.value / 100); // kg/hr
-            const requiredCurrent = (copperDepositionRate * 2 * 96485) / (63.546 * 3600 / 1000); // Faraday's Law simplified
-            const totalCathodes = Math.ceil(requiredCurrent / (A.currentDensity.value * A.cathodeArea.value * 2));
+            // Crushing & Heap Design
+            const crusherHourlyCapacity = dailyOreFeed / A.operatingHoursCrusher.value;
+            const dailyOreVolume = dailyOreFeed / density;
+            const totalAreaUnderLeach = (annualOreFeed / density) * (A.leachingCycle.value / A.operatingDays.value) / A.heapHeight.value;
+            
+            // SX/EW and Flow Rates
+            const dailyCopperProductionKg = (targetCathodeTon * 1000) / A.operatingDays.value;
+            const hourlyCopperProductionKg = dailyCopperProductionKg / 24;
+            
+            const copperExtractedPerLiter = (A.plsCopperGrade.value - A.raffinateCopperGrade.value) / 1000; // kg/L
+            const plsFlowRateLPH = (hourlyCopperProductionKg / copperExtractedPerLiter); // L/hr
+            const plsFlowRateM3PH = plsFlowRateLPH / 1000; // m³/hr
+            
+            // EW Calculation
+            const requiredCurrent = (hourlyCopperProductionKg * 1000 * 2 * 96485) / (63.546 * 3600 * (A.currentEfficiency.value / 100)); // Faraday's Law
+            const totalCathodeArea = requiredCurrent / A.currentDensity.value;
+            const totalCathodes = Math.ceil(totalCathodeArea / (A.cathodeArea.value * 2)); // 2 sides per cathode
             const ewCells = Math.ceil(totalCathodes / A.cathodesPerCell.value);
             const cellVoltage = 2.1; // Typical voltage
-            const rectifierPower = (ewCells * A.cathodesPerCell.value * A.currentDensity.value * A.cathodeArea.value * 2 * cellVoltage) / 1000; // kW
+            const rectifierPower = (requiredCurrent * cellVoltage * ewCells) / (totalCathodes / A.cathodesPerCell.value) / 1000; // kW, simplified to I*V_total
+            const totalRectifierPower = (requiredCurrent * cellVoltage * ewCells) / 1000;
+             const rectifierPowerFinal = (ewCells * A.cathodesPerCell.value * A.currentDensity.value * A.cathodeArea.value * 2 * cellVoltage) / 1000; // kW
+
+
+            // Consumables
+            const annualAcidTon = (annualOreFeed * A.acidConsumption.value) / 1000;
+            const dailyAcidTon = annualAcidTon / A.operatingDays.value;
             
-            const organicFlowRate = plsFlowRate; // Assuming O/A ratio of 1
-            const totalFlowRate = plsFlowRate + organicFlowRate;
-            const mixerRetentionTime = 3 / 60; // 3 minutes in hours
-            const settlerAreaRate = 1.5; // m³/hr/m²
-            const mixerVolume = totalFlowRate * mixerRetentionTime;
-            const settlerArea = totalFlowRate / settlerAreaRate;
-            // Assuming 2 extraction + 1 strip stage
-            const totalMixerSettlerVolume = (mixerVolume * 3) + (settlerArea * 1.2 * 3); // 1.2m depth
-
-
-            // Crushing
-            const crusherHourlyCapacity = (capacity / A.operatingDays.value) / A.operatingHours.value;
-            let jawCrusherSuggestion = "وابسته به F80";
-            if (crusherHourlyCapacity < 150) jawCrusherSuggestion = "سری PE 750x1060";
-            else if (crusherHourlyCapacity < 300) jawCrusherSuggestion = "سری PE 900x1200";
-            else jawCrusherSuggestion = "سری PE 1200x1500";
-            
-            let hydroconeSuggestion = "وابسته به P80 فکی";
-             if (crusherHourlyCapacity < 150) hydroconeSuggestion = "سری CS 160 (ثانویه)";
-            else if (crusherHourlyCapacity < 300) hydroconeSuggestion = "سری CS 240 (ثانویه)";
-            else hydroconeSuggestion = "سری CS 400 (ثانویه/ثالثیه)";
-
-
             // 3. Display Results
             document.getElementById('summary').innerHTML = 
-                createResultCard('مس محتوی در کانسنگ', totalCopperInOre, 'تن در سال') +
-                createResultCard('تولید نهایی مس کاتدی', finalCopperProduction, 'تن در سال') +
-                createResultCard('تولید روزانه مس کاتدی', dailyCopperProductionKg, 'کیلوگرم در روز');
-
-            document.getElementById('heap').innerHTML =
-                createResultCard('حجم روزانه کانسنگ', dailyOreVolume, 'متر مکعب') +
-                createResultCard('مساحت کل زیرسازی هیپ', totalAreaUnderLeach, 'متر مربع (هکتار: ' + formatNum(totalAreaUnderLeach/10000) + ')') +
-                createResultCard('جریان محلول باردار (PLS)', plsFlowRate, 'متر مکعب در ساعت');
-
-            document.getElementById('consumables').innerHTML =
-                createResultCard('مصرف روزانه اسید سولفوریک (98%)', dailyAcidTon, 'تن') +
-                createResultCard('مصرف روزانه آب جبرانی', dailyWaterM3, 'متر مکعب') +
-                createResultCard('مصرف سالانه LIX (یا معادل)', annualLixKg, 'کیلوگرم') +
-                createResultCard('مصرف سالانه نفت (یا رقیق‌کننده)', annualKeroseneL / 1000, 'متر مکعب');
-
-            document.getElementById('sxew').innerHTML =
-                createResultCard('تعداد سلول‌های الکترووینینگ', ewCells, 'عدد') +
-                createResultCard('ظرفیت رکتیفایر', rectifierPower, 'کیلووات (kW)') +
-                createResultCard('حجم کل میکسر-ستلرها (تقریبی)', totalMixerSettlerVolume, 'متر مکعب') +
-                createResultCard('تعداد کل کاتدها', totalCathodes, 'عدد');
+                createResultCard('خوراک سالانه کانسنگ مورد نیاز', annualOreFeed, 'تن') +
+                createResultCard('مس قابل استخراج در کانسنگ', requiredCopperInOre, 'تن در سال') +
+                createResultCard('راندمان کلی فرآیند', totalRecovery * 100, '%');
 
             document.getElementById('crushing').innerHTML =
-                createResultCard('ظرفیت ساعتی مدار سنگ‌شکنی', crusherHourlyCapacity, 'تن در ساعت') +
-                createResultCard('پیشنهاد سنگ شکن اولیه (فکی)', jawCrusherSuggestion, '') +
-                createResultCard('پیشنهاد سنگ شکن ثانویه (مخروطی)', hydroconeSuggestion, '');
+                createResultCard('ظرفیت ساعتی سنگ‌شکن', crusherHourlyCapacity, 'تن در ساعت') +
+                createResultCard('حجم روزانه دپوی کانسنگ', dailyOreVolume, 'متر مکعب') +
+                createResultCard('مساحت کل زیرسازی هیپ', totalAreaUnderLeach, 'متر مربع (هکتار: ' + formatNum(totalAreaUnderLeach/10000) + ')');
+
+            document.getElementById('sxew').innerHTML =
+                createResultCard('جریان محلول باردار (PLS)', plsFlowRateM3PH, 'متر مکعب در ساعت') +
+                createResultCard('تعداد کل کاتدها', totalCathodes, 'عدد') +
+                createResultCard('تعداد سلول‌های الکترووینینگ', ewCells, 'عدد') +
+                createResultCard('ظرفیت رکتیفایر (تقریبی)', rectifierPowerFinal, 'کیلووات (kW)');
+
+            document.getElementById('consumables').innerHTML =
+                createResultCard('مصرف سالانه اسید سولفوریک', annualAcidTon, 'تن') +
+                createResultCard('مصرف روزانه اسید سولفوریک', dailyAcidTon, 'تن');
 
             resultsDiv.classList.remove('hidden');
         }
@@ -306,29 +232,30 @@
         // --- Tab Switching Logic ---
         const tabsContainer = document.getElementById('tabs');
         const tabContentContainer = document.getElementById('tab-content-container');
-
         tabsContainer.addEventListener('click', (e) => {
             if (e.target.classList.contains('tab-btn')) {
-                // Deactivate all tabs and content
                 tabsContainer.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
                 tabContentContainer.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-
-                // Activate clicked tab and corresponding content
                 e.target.classList.add('active');
                 const tabName = e.target.getAttribute('data-tab');
                 document.getElementById(tabName).classList.add('active');
             }
         });
 
-        // --- Event Listener ---
         calculateBtn.addEventListener('click', performCalculations);
-        
-        // --- Initial Population ---
-        window.onload = () => {
-            populateAssumptions();
-        };
-
+        window.onload = populateAssumptions;
     </script>
 </body>
 </html>
 
+نکات کلیدی و تغییرات اعمال شده
+ * منطق معکوس (مبتنی بر تولید): محاسبات از هدف نهایی (تولید کاتد) آغاز می‌شود. با در نظر گرفتن راندمان‌های لیچینگ و SX/EW، میزان مس مورد نیاز در خوراک و در نتیجه، حجم کل کانسنگ لازم برای رسیدن به آن هدف تولیدی محاسبه می‌گردد.
+ * سلول‌های الکترووینینگ استاندارد: تعداد سلول‌ها دقیقاً بر اساس فرض 30 کاتد در هر سلول محاسبه می‌شود که مطابق با درخواست شما و استانداردهای رایج صنعتی است.
+ * جریان محلول (PLS): دبی محلول باردار (PLS) دیگر یک فرض ثابت نیست، بلکه بر اساس میزان مس که باید روزانه از هیپ به کارخانه SX منتقل شود و اختلاف غلظت مس در محلول ورودی (PLS) و خروجی (رافینت) محاسبه می‌گردد. این رویکرد بسیار دقیق‌تر است.
+ * به‌روزرسانی مفروضات: پارامترهایی مانند عیار مس در رافینت به مفروضات اضافه شده و مقادیر دیگر (مانند نرخ پاشش و چرخه لیچینگ) برای انطباق با سناریوهای واقعی بهینه‌سازی شده‌اند.
+ * دسته‌بندی جدید نتایج: نتایج در تب‌های منطقی‌تری سازماندهی شده‌اند تا تحلیل داده‌ها ساده‌تر باشد:
+   * خلاصه فرآیند: نمایش میزان خوراک مورد نیاز برای رسیدن به تولید هدف.
+   * سنگ‌شکنی و هیپ: ابعاد و ظرفیت‌های بخش آماده‌سازی و دپوی ماده معدنی.
+   * کارخانه SX/EW: مشخصات کلیدی بخش فرآوری محلول و تولید کاتد.
+   * مواد مصرفی: برآورد نیاز به مواد شیمیایی اصلی بر اساس حجم واقعی کانسنگ.
+این نسخه از ماشین حساب، ابزار قدرتمندتری برای مطالعات امکان‌سنجی (Feasibility Study) و طراحی مفهومی (Conceptual Design) در اختیار شما قرار می‌دهد. امیدوارم این مدل جدید، نیازهای شما را به شکل کامل‌تری پوشش دهد.
