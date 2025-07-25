@@ -1,261 +1,798 @@
-<!DOCTYPE html>
-<html lang="fa" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ماشین حساب پیشرفته طراحی کارخانه هیپ لیچینگ مس</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Vazirmatn', sans-serif;
-        }
-        .tab-content {
-            display: none;
-        }
-        .tab-content.active {
-            display: block;
-        }
-        .tab-btn.active {
-            border-color: #16a34a; /* Green */
-            background-color: #f0fdf4;
-            color: #15803d;
-        }
-        .result-card {
-            background-color: #f9fafb;
-            border-right: 4px solid #2563eb;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-        .result-title {
-            font-weight: 600;
-            color: #1f2937;
-        }
-        .result-value {
-            font-weight: 700;
-            color: #1d4ed8;
-            font-size: 1.25rem;
-        }
-        .result-unit {
-            font-size: 0.9rem;
-            color: #6b7280;
-        }
-        .assumption-box {
-            background-color: #fffbeb;
-            border: 1px solid #fde68a;
-            border-radius: 8px;
-            padding: 1rem;
-        }
-    </style>
-</head>
-<body class="bg-gray-50 text-gray-800">
+import React, { useState, useEffect, useCallback } from 'react';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
-    <div class="container mx-auto p-4 md:p-8">
-        <header class="text-center mb-8">
-            <h1 class="text-3xl md:text-4xl font-bold text-green-800">ماشین حساب پیشرفته طراحی کارخانه هیپ لیچینگ (مبتنی بر تولید)</h1>
-            <p class="mt-2 text-lg text-gray-600">ظرفیت تولید کاتد و مشخصات کانسنگ را وارد کنید تا نیازمندی‌های پروژه محاسبه شود.</p>
-        </header>
+// Helper function to solve cubic equations (Cardano's formula is complex, using an iterative approach for simplicity and robustness in JS)
+// This is a simplified numerical approximation for a real root.
+const solveCubic = (a, b, c, d) => {
+    // Equation: ax^3 + bx^2 + cx + d = 0
+    // For our case, it's Y^3 + alpha*Y^2 + lambda*Y + epsilon = 0, so a=1, b=alpha, c=lambda, d=epsilon
+    const p = c - (b * b) / 3;
+    const q = d - (b * c) / 3 + (2 * b * b * b) / 27;
 
-        <div class="bg-white p-6 rounded-xl shadow-md mb-8">
-            <h2 class="text-2xl font-bold mb-6 border-b-2 border-gray-200 pb-2 text-gray-700">۱. پارامترهای اصلی پروژه</h2>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div>
-                    <label for="cathode_production" class="block text-sm font-medium text-gray-700 mb-1">ظرفیت تولید کاتد (تن در سال)</label>
-                    <input type="number" id="cathode_production" value="10000" class="w-full p-3 bg-gray-100 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition">
-                </div>
-                <div>
-                    <label for="grade" class="block text-sm font-medium text-gray-700 mb-1">عیار متوسط مس در کانسنگ (%)</label>
-                    <input type="number" id="grade" value="0.8" step="0.1" class="w-full p-3 bg-gray-100 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition">
-                </div>
-                <div>
-                    <label for="density" class="block text-sm font-medium text-gray-700 mb-1">دانسیته کانسنگ (تن بر متر مکعب)</label>
-                    <input type="number" id="density" value="1.6" step="0.1" class="w-full p-3 bg-gray-100 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition">
-                </div>
-            </div>
-            <div class="mt-6 text-center">
-                <button id="calculateBtn" class="bg-green-600 text-white font-bold py-3 px-10 rounded-lg hover:bg-green-700 transition-all duration-300 shadow-lg focus:outline-none focus:ring-4 focus:ring-green-300">
-                    محاسبه کن
-                </button>
-            </div>
-        </div>
-        
-        <div id="assumptions" class="assumption-box mb-8">
-            <h3 class="text-xl font-bold mb-4 text-amber-800">۲. مفروضات کلیدی (بر اساس استانداردهای مشاوران)</h3>
-            <ul id="assumptionsList" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 text-sm">
-                </ul>
-        </div>
+    const delta = (q * q) / 4 + (p * p * p) / 27;
 
-        <div id="results" class="bg-white p-6 rounded-xl shadow-md hidden">
-            <h2 class="text-2xl font-bold mb-4 border-b-2 border-gray-200 pb-2 text-gray-700">۳. نتایج محاسبات</h2>
+    if (delta >= 0) {
+        const u = Math.cbrt(-q / 2 + Math.sqrt(delta));
+        const v = Math.cbrt(-q / 2 - Math.sqrt(delta));
+        return u + v - b / 3; // One real root
+    } else {
+        // Three real roots (irreducible case)
+        const r = Math.sqrt(-(p * p * p) / 27);
+        const phi = Math.acos(-q / (2 * r));
+        const y1 = 2 * Math.cbrt(r) * Math.cos(phi / 3) - b / 3;
+        const y2 = 2 * Math.cbrt(r) * Math.cos((phi + 2 * Math.PI) / 3) - b / 3;
+        const y3 = 2 * Math.cbrt(r) * Math.cos((phi + 4 * Math.PI) / 3) - b / 3;
+        // Return the largest positive root, or the most relevant one for the physical context
+        return Math.max(y1, y2, y3); // Assuming positive concentration is desired
+    }
+};
 
-            <div class="border-b border-gray-200 mb-6">
-                <nav class="flex flex-wrap -mb-px" id="tabs">
-                    <button class="tab-btn active text-lg font-semibold py-4 px-6 border-b-4 border-transparent hover:border-gray-300 focus:outline-none" data-tab="summary">خلاصه فرآیند</button>
-                    <button class="tab-btn text-lg font-semibold py-4 px-6 border-b-4 border-transparent hover:border-gray-300 focus:outline-none" data-tab="crushing">سنگ‌شکنی و هیپ</button>
-                    <button class="tab-btn text-lg font-semibold py-4 px-6 border-b-4 border-transparent hover:border-gray-300 focus:outline-none" data-tab="sxew">کارخانه SX/EW</button>
-                    <button class="tab-btn text-lg font-semibold py-4 px-6 border-b-4 border-transparent hover:border-gray-300 focus:outline-none" data-tab="consumables">مواد مصرفی</button>
-                </nav>
-            </div>
+// Helper function to solve quadratic equations
+const solveQuadratic = (a, b, c) => {
+    // Equation: ax^2 + bx + c = 0
+    const discriminant = b * b - 4 * a * c;
+    if (discriminant < 0) {
+        return null; // No real roots
+    } else if (discriminant === 0) {
+        return -b / (2 * a);
+    } else {
+        const x1 = (-b + Math.sqrt(discriminant)) / (2 * a);
+        const x2 = (-b - Math.sqrt(discriminant)) / (2 * a);
+        return Math.min(x1, x2); // Assuming the smaller positive root is relevant for raffinate/spent electrolyte
+    }
+};
 
-            <div id="tab-content-container">
-                <div id="summary" class="tab-content active grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-                <div id="crushing" class="tab-content grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-                <div id="sxew" class="tab-content grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-                <div id="consumables" class="tab-content grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-            </div>
-        </div>
-    </div>
 
-    <script>
-        const calculateBtn = document.getElementById('calculateBtn');
-        const resultsDiv = document.getElementById('results');
-        const assumptionsList = document.getElementById('assumptionsList');
-        
-        const ASSUMPTIONS = {
-            operatingDays: { value: 350, unit: 'روز در سال', label: 'روزهای کاری' },
-            leachingRecovery: { value: 85, unit: '%', label: 'راندمان لیچینگ' },
-            sxewRecovery: { value: 99.5, unit: '%', label: 'راندمان کلی SX/EW' },
-            heapHeight: { value: 6, unit: 'متر', label: 'ارتفاع هیپ' },
-            leachingCycle: { value: 90, unit: 'روز', label: 'چرخه لیچینگ (پاشش+استراحت)' },
-            irrigationRate: { value: 8, unit: 'L/hr/m²', label: 'نرخ پاشش' },
-            acidConsumption: { value: 20, unit: 'kg/ton ore', label: 'مصرف اسید (بسته به کانی‌شناسی)' },
-            plsCopperGrade: { value: 3.5, unit: 'g/L', label: 'عیار مس در PLS' },
-            raffinateCopperGrade: { value: 0.4, unit: 'g/L', label: 'عیار مس در رافینت' },
-            currentDensity: { value: 300, unit: 'A/m²', label: 'چگالی جریان EW' },
-            currentEfficiency: { value: 92, unit: '%', label: 'راندمان جریان EW' },
-            cathodesPerCell: { value: 30, unit: 'عدد', label: 'کاتد در هر سلول (استاندارد)' },
-            cathodeArea: { value: 1, unit: 'm²', label: 'سطح هر وجه کاتد' },
-            operatingHoursCrusher: { value: 20, unit: 'ساعت در روز', label: 'ساعات کاری سنگ‌شکن' },
+const App = () => {
+    // Input Data States (from Table 17)
+    const [plsFlow, setPlsFlow] = useState(400); // m^3/h
+    const [cuPls, setCuPls] = useState(7.0); // g/L
+    const [acPls, setAcPls] = useState(1.96); // g/L
+    const [percentML, setPercentML] = useState(80); // %
+    const [oaAdfEx, setOaAdfEx] = useState(1.25); // O/A ratio
+    const [eff1Ex, setEff1Ex] = useState(95); // %
+    const [eff2Ex, setEff2Ex] = useState(95); // %
+
+    const [cuSp, setCuSp] = useState(35); // g/L
+    const [acSp, setAcSp] = useState(190); // g/L
+    const [cuAd, setCuAd] = useState(50); // g/L
+    const [eff1St, setEff1St] = useState(98); // %
+    const [eff2St, setEff2St] = useState(98); // %
+
+    // Solver Variables (manual adjustment for now, to emulate Excel Solver)
+    const [extractantVolumePercent, setExtractantVolumePercent] = useState(17.10); // V%
+    const [yd1ExSolver, setYd1ExSolver] = useState(7.631); // Y_D1 for Extraction Stage 1
+    const [yd2ExSolver, setYd2ExSolver] = useState(3.664); // Y_D2 for Extraction Stage 2
+    const [yd1StSolver, setYd1StSolver] = useState(2.844); // Y_D1 for Stripping Stage 1
+    const [yd2StSolver, setYd2StSolver] = useState(2.081); // Y_D2 for Stripping Stage 2
+
+    // Calculated Results States
+    const [results, setResults] = useState({});
+    const [extractionIsothermData, setExtractionIsothermData] = useState([]);
+    const [strippingIsothermData, setStrippingIsothermData] = useState([]);
+    const [extractionOperatingLineData, setExtractionOperatingLineData] = useState([]);
+    const [strippingOperatingLineData, setStrippingOperatingLineData] = useState([]);
+
+
+    const calculateAll = useCallback(() => {
+        const V_percent = extractantVolumePercent;
+        const Cu_PLS = cuPls;
+        const Ac_PLS = acPls;
+        const O_A_ADF_ex = oaAdfEx;
+        const Eff_e1 = eff1Ex;
+        const Eff_e2 = eff2Ex;
+
+        const Cu_SP = cuSp;
+        const Ac_SP = acSp;
+        const Cu_AD = cuAd;
+        const Eff_s1 = eff1St;
+        const Eff_s2 = eff2St;
+
+        // Constants for extraction (Equations 42-47)
+        const a_ex = Ac_PLS + 1.54 * Cu_PLS;
+        const b_ex = -1.54;
+        const c_ex = 3.303 * V_percent;
+        const d_ex = -3.0842;
+        const e_ex = -25.698 * Math.pow(V_percent, -1.704);
+        const f_ex = 10.663 * Math.pow(V_percent, -0.608);
+
+        // Constants for stripping (Equations 65-70)
+        const a_st = Ac_SP + 1.54 * Cu_SP;
+        const b_st = -1.54;
+        const c_st = 3.303 * V_percent;
+        const d_st = -3.0842;
+        const e_st = 5.11 * Math.pow(10, -3) * V_percent - 0.194;
+        const f_st = 12.81 * Math.pow(V_percent, -0.901);
+
+        // General Calculations
+        const organicFlow = plsFlow * O_A_ADF_ex;
+        const amlp = 0.415 * Math.pow(V_percent, 1.096);
+
+        // Maximum Loading (ML) - using Cu_PLS as Cu_aq_e for ML calculation (Equation 89-102)
+        const g_ML = Math.pow((a_ex + b_ex * Cu_PLS), 2) / Cu_PLS;
+        const alpha_ML = (2 * c_ex * d_ex * e_ex + Math.pow(d_ex, 2) * f_ex) / (Math.pow(d_ex, 2) * e_ex);
+        const lambda_ML = (2 * c_ex * d_ex * f_ex + Math.pow(c_ex, 2) * e_ex - g_ML) / (Math.pow(d_ex, 2) * e_ex);
+        const epsilon_ML = (f_ex * Math.pow(c_ex, 2)) / (Math.pow(d_ex, 2) * e_ex);
+
+        const p_ML = lambda_ML - Math.pow(alpha_ML, 2) / 3;
+        const q_ML = epsilon_ML - (alpha_ML * lambda_ML) / 3 + (2 / 27) * Math.pow(alpha_ML, 3);
+        const t_ML = solveCubic(1, p_ML, q_ML, 0); // Assuming the cubic solver takes a,b,c,d for ax^3+bx^2+cx+d=0
+        const ml = t_ML - alpha_ML / 3;
+
+
+        // --- Extraction Stage 1 (E1) ---
+        // Y_A1 is Cu_LO from previous stage, but for the first stage, it's the target %ML of ML
+        const Y_A1 = ml * (percentML / 100); // D30 in Excel (Cu_or for A1)
+        const X_A1 = Cu_PLS; // C30 in Excel (Cu_aq for A1)
+
+        // Y_D1 is a solver variable (yd1ExSolver)
+        const Y_D1 = yd1ExSolver; // D33 in Excel
+
+        // h_ex for D1 (Equation 59)
+        const h_ex_D1 = (e_ex * Y_D1 + f_ex) * Math.pow(c_ex + d_ex * Y_D1, 2) / Y_D1;
+        // X_D1 (Cu_aq_e for D1) (Equation 61)
+        const X_D1 = solveQuadratic(Math.pow(b_ex, 2), (2 * a_ex * b_ex - h_ex_D1), Math.pow(a_ex, 2)); // C33 in Excel
+
+        // Y_B1 (Cu_or for B1) = Y_A1 (D31 in Excel)
+        const Y_B1 = Y_A1;
+
+        // X_B1 (Cu_aq for B1) (Equation 86)
+        const X_B1 = X_D1 + O_A_ADF_ex * (Y_D1 - Y_B1); // C31 in Excel
+
+        // X_C1 (Cu_aq for C1) = X_B1 (C32 in Excel)
+        const X_C1 = X_B1;
+        // Y_C1 (Cu_or for C1) (Equation 86)
+        const Y_C1 = Y_D1 + (X_D1 - X_A1) / O_A_ADF_ex; // D32 in Excel
+
+        // Organic Stage Efficiency E1 (Equation 114)
+        const eff_or_e1 = ((Y_B1 - Y_A1) / (Y_D1 - Y_A1)) * 100; // H33 in Excel
+        const eff_e1_constraint = eff_or_e1 - Eff_e1; // I33 in Excel
+
+        // --- Extraction Stage 2 (E2) ---
+        // A2 coordinates are C1 coordinates from Stage 1
+        const X_A2 = X_C1; // C37 in Excel
+        const Y_A2 = Y_C1; // D37 in Excel
+
+        // Y_D2 is a solver variable (yd2ExSolver)
+        const Y_D2 = yd2ExSolver; // D40 in Excel
+
+        // h_ex for D2 (Equation 59)
+        const h_ex_D2 = (e_ex * Y_D2 + f_ex) * Math.pow(c_ex + d_ex * Y_D2, 2) / Y_D2;
+        // X_D2 (Cu_aq_e for D2) (Equation 61)
+        const X_D2 = solveQuadratic(Math.pow(b_ex, 2), (2 * a_ex * b_ex - h_ex_D2), Math.pow(a_ex, 2)); // C40 in Excel
+
+        // Y_B2 (Cu_or for B2) = Y_A2 (D38 in Excel)
+        const Y_B2 = Y_A2;
+
+        // X_B2 (Cu_aq for B2) (Equation 86)
+        const X_B2 = X_D2 + O_A_ADF_ex * (Y_D2 - Y_B2); // C38 in Excel
+
+        // X_C2 (Cu_aq for C2) = X_B2 (C39 in Excel)
+        const X_C2 = X_B2;
+        // Y_C2 (Cu_or for C2) (Equation 86)
+        const Y_C2 = Y_D2 + (X_D2 - X_A2) / O_A_ADF_ex; // D39 in Excel
+
+        // Organic Stage Efficiency E2 (Equation 114)
+        const eff_or_e2 = ((Y_B2 - Y_A2) / (Y_D2 - Y_A2)) * 100; // H40 in Excel
+        const eff_e2_constraint = eff_or_e2 - Eff_e2; // I40 in Excel
+
+        // Extraction Performance
+        const acRaff = Ac_PLS + (X_A1 - X_C2) * 1.54; // C43 in Excel
+        const rCuEx = ((X_A1 - X_C2) / X_A1) * 100; // C44 in Excel
+
+        // --- Stripping Stage 1 (S1) ---
+        // X_A1_st (Cu_aq for A1_st) = Cu_AD (C66 in Excel)
+        const X_A1_st = Cu_AD;
+        // Y_A1_st (Cu_or for A1_st) = Y_A1 (Cu_LO from extraction) (D66 in Excel)
+        const Y_A1_st = Y_A1; // This is LO_e
+
+        // O/A_ADF_st (C61 in Excel)
+        const O_A_ADF_st = (Cu_AD - Cu_SP) / (Y_A1 - Y_C2); // (Cu_AD - Cu_SP) / (LO_e - SO_s)
+
+        // Y_D1_st is a solver variable (yd1StSolver)
+        const Y_D1_st = yd1StSolver; // D69 in Excel
+
+        // h_st for D1_st (Equation 82)
+        const h_st_D1 = (e_st * Y_D1_st + f_st) * Math.pow(c_st + d_st * Y_D1_st, 2) / Y_D1_st;
+        // X_D1_st (Cu_aq_e for D1_st) (Equation 84)
+        const X_D1_st = solveQuadratic(Math.pow(b_st, 2), (2 * a_st * b_st - h_st_D1), Math.pow(a_st, 2)); // C69 in Excel
+
+        // X_B1_st (Cu_aq for B1_st) = X_A1_st (C67 in Excel)
+        const X_B1_st = X_A1_st;
+        // Y_B1_st (Cu_or for B1_st) (Equation 88)
+        const Y_B1_st = Y_D1_st - (X_B1_st - X_D1_st) / O_A_ADF_st; // D67 in Excel
+
+        // Y_C1_st (Cu_or for C1_st) = Y_B1_st (D68 in Excel)
+        const Y_C1_st = Y_B1_st;
+        // X_C1_st (Cu_aq for C1_st) (Equation 87)
+        const X_C1_st = X_B1_st - O_A_ADF_st * (Y_A1_st - Y_B1_st); // C68 in Excel
+
+        // Organic Stage Efficiency S1 (Equation 116)
+        const eff_or_s1 = ((Y_B1_st - Y_A1_st) / (Y_B1_st - Y_D1_st)) * 100; // H69 in Excel
+        const eff_s1_constraint = eff_or_s1 - Eff_s1; // I69 in Excel
+
+        // --- Stripping Stage 2 (S2) ---
+        // A2_st coordinates are C1_st coordinates from Stage 1
+        const X_A2_st = X_C1_st; // C73 in Excel
+        const Y_A2_st = Y_C1_st; // D73 in Excel
+
+        // Y_D2_st is a solver variable (yd2StSolver)
+        const Y_D2_st = yd2StSolver; // D76 in Excel
+
+        // h_st for D2_st (Equation 82)
+        const h_st_D2 = (e_st * Y_D2_st + f_st) * Math.pow(c_st + d_st * Y_D2_st, 2) / Y_D2_st;
+        // X_D2_st (Cu_aq_e for D2_st) (Equation 84)
+        const X_D2_st = solveQuadratic(Math.pow(b_st, 2), (2 * a_st * b_st - h_st_D2), Math.pow(a_st, 2)); // C76 in Excel
+
+        // X_B2_st (Cu_aq for B2_st) = X_A2_st (C74 in Excel)
+        const X_B2_st = X_A2_st;
+        // Y_B2_st (Cu_or for B2_st) (Equation 88)
+        const Y_B2_st = Y_D2_st - (X_B2_st - X_D2_st) / O_A_ADF_st; // D74 in Excel
+
+        // Y_C2_st (Cu_or for C2_st) = Y_B2_st (D75 in Excel)
+        const Y_C2_st = Y_B2_st;
+        // X_C2_st (Cu_aq for C2_st) (Equation 87)
+        const X_C2_st = X_B2_st - O_A_ADF_st * (Y_A2_st - Y_B2_st); // C75 in Excel
+
+        // Organic Stage Efficiency S2 (Equation 116)
+        const eff_or_s2 = ((Y_B2_st - Y_A2_st) / (Y_B2_st - Y_D2_st)) * 100; // H76 in Excel
+        const eff_s2_constraint = eff_or_s2 - Eff_s2; // I76 in Excel
+
+        // Stripping Performance
+        const rCuSt = ((Y_A1_st - Y_C2_st) / Y_A1_st) * 100; // C79 in Excel
+        const netCu = (Y_A1_st - Y_C2_st) / V_percent; // C80 in Excel
+
+        // Set Objective (LO_e = SO_s) (Equation 119)
+        const setObjectiveConstraint = Y_A1 - Y_C2_st; // I84 in Excel
+
+        // Generate Isotherm Data for plotting
+        const generateIsotherm = (isExtraction) => {
+            const data = [];
+            const minX = isExtraction ? 0.01 : 28;
+            const maxX = isExtraction ? 8 : 55;
+            const step = isExtraction ? 0.1 : 1;
+
+            for (let x = minX; x <= maxX; x += step) {
+                let Y_eq;
+                if (isExtraction) {
+                    // Solve cubic for Y (Cu_or_e) given X (Cu_aq_e)
+                    const g_ex_val = Math.pow((a_ex + b_ex * x), 2) / x;
+                    const alpha_ex_val = (2 * c_ex * d_ex * e_ex + Math.pow(d_ex, 2) * f_ex) / (Math.pow(d_ex, 2) * e_ex);
+                    const lambda_ex_val = (2 * c_ex * d_ex * f_ex + Math.pow(c_ex, 2) * e_ex - g_ex_val) / (Math.pow(d_ex, 2) * e_ex);
+                    const epsilon_ex_val = (f_ex * Math.pow(c_ex, 2)) / (Math.pow(d_ex, 2) * e_ex);
+
+                    const p_ex_val = lambda_ex_val - Math.pow(alpha_ex_val, 2) / 3;
+                    const q_ex_val = epsilon_ex_val - (alpha_ex_val * lambda_ex_val) / 3 + (2 / 27) * Math.pow(alpha_ex_val, 3);
+                    const t_ex_val = solveCubic(1, p_ex_val, q_ex_val, 0);
+                    Y_eq = t_ex_val - alpha_ex_val / 3;
+                } else {
+                    // Solve cubic for Y (Cu_or_e) given X (Cu_aq_e) for stripping
+                    const g_st_val = Math.pow((a_st + b_st * x), 2) / x;
+                    const alpha_st_val = (2 * c_st * d_st * e_st + Math.pow(d_st, 2) * f_st) / (Math.pow(d_st, 2) * e_st);
+                    const lambda_st_val = (2 * c_st * d_st * f_st + Math.pow(c_st, 2) * e_st - g_st_val) / (Math.pow(d_st, 2) * e_st);
+                    const epsilon_st_val = (f_st * Math.pow(c_st, 2)) / (Math.pow(d_st, 2) * e_st);
+
+                    const p_st_val = lambda_st_val - Math.pow(alpha_st_val, 2) / 3;
+                    const q_st_val = epsilon_st_val - (alpha_st_val * lambda_st_val) / 3 + (2 / 27) * Math.pow(alpha_st_val, 3);
+                    const t_st_val = solveCubic(1, p_st_val, q_st_val, 0);
+                    Y_eq = t_st_val - alpha_st_val / 3;
+                }
+                if (!isNaN(Y_eq) && Y_eq > 0) {
+                    data.push({ x: x.toFixed(2), y: Y_eq.toFixed(2) });
+                }
+            }
+            return data;
         };
 
-        const formatNum = (num) => num.toLocaleString('fa-IR', { maximumFractionDigits: 1 });
+        setExtractionIsothermData(generateIsotherm(true));
+        setStrippingIsothermData(generateIsotherm(false));
 
-        function createResultCard(title, value, unit) {
-            return `
-                <div class="result-card">
-                    <h4 class="result-title">${title}</h4>
-                    <p>
-                        <span class="result-value">${formatNum(value)}</span>
-                        <span class="result-unit">${unit}</span>
-                    </p>
-                </div>`;
-        }
-        
-        function populateAssumptions() {
-            assumptionsList.innerHTML = '';
-            for (const key in ASSUMPTIONS) {
-                const item = ASSUMPTIONS[key];
-                const li = document.createElement('li');
-                li.className = "bg-white p-2 rounded-md shadow-sm";
-                li.innerHTML = `<span class="font-semibold text-gray-800">${item.label}:</span> <span class="font-bold text-green-700">${item.value} ${item.unit}</span>`;
-                assumptionsList.appendChild(li);
-            }
-        }
+        // Generate Operating Line Data
+        const generateOperatingLine = (X_A, Y_A, X_C, Y_C, O_A_ratio) => {
+            // Line from (X_C, Y_C) to (X_A, Y_A)
+            return [
+                { x: X_C, y: Y_C },
+                { x: X_A, y: Y_A }
+            ];
+        };
 
-        function performCalculations() {
-            // 1. Get Inputs
-            const targetCathodeTon = parseFloat(document.getElementById('cathode_production').value);
-            const grade = parseFloat(document.getElementById('grade').value);
-            const density = parseFloat(document.getElementById('density').value);
-
-            if (isNaN(targetCathodeTon) || isNaN(grade) || isNaN(density) || targetCathodeTon <= 0 || grade <= 0 || density <= 0) {
-                alert('لطفاً مقادیر ورودی معتبر وارد کنید.');
-                return;
-            }
-
-            // 2. Core Calculations (Backward from Production)
-            const A = ASSUMPTIONS;
-            
-            // Required Ore Calculation
-            const totalRecovery = (A.leachingRecovery.value / 100) * (A.sxewRecovery.value / 100);
-            const requiredLeachedCopper = targetCathodeTon / (A.sxewRecovery.value / 100);
-            const requiredCopperInOre = targetCathodeTon / totalRecovery;
-            const annualOreFeed = requiredCopperInOre / (grade / 100);
-            const dailyOreFeed = annualOreFeed / A.operatingDays.value;
-
-            // Crushing & Heap Design
-            const crusherHourlyCapacity = dailyOreFeed / A.operatingHoursCrusher.value;
-            const dailyOreVolume = dailyOreFeed / density;
-            const totalAreaUnderLeach = (annualOreFeed / density) * (A.leachingCycle.value / A.operatingDays.value) / A.heapHeight.value;
-            
-            // SX/EW and Flow Rates
-            const dailyCopperProductionKg = (targetCathodeTon * 1000) / A.operatingDays.value;
-            const hourlyCopperProductionKg = dailyCopperProductionKg / 24;
-            
-            const copperExtractedPerLiter = (A.plsCopperGrade.value - A.raffinateCopperGrade.value) / 1000; // kg/L
-            const plsFlowRateLPH = (hourlyCopperProductionKg / copperExtractedPerLiter); // L/hr
-            const plsFlowRateM3PH = plsFlowRateLPH / 1000; // m³/hr
-            
-            // EW Calculation
-            const requiredCurrent = (hourlyCopperProductionKg * 1000 * 2 * 96485) / (63.546 * 3600 * (A.currentEfficiency.value / 100)); // Faraday's Law
-            const totalCathodeArea = requiredCurrent / A.currentDensity.value;
-            const totalCathodes = Math.ceil(totalCathodeArea / (A.cathodeArea.value * 2)); // 2 sides per cathode
-            const ewCells = Math.ceil(totalCathodes / A.cathodesPerCell.value);
-            const cellVoltage = 2.1; // Typical voltage
-            const rectifierPower = (requiredCurrent * cellVoltage * ewCells) / (totalCathodes / A.cathodesPerCell.value) / 1000; // kW, simplified to I*V_total
-            const totalRectifierPower = (requiredCurrent * cellVoltage * ewCells) / 1000;
-             const rectifierPowerFinal = (ewCells * A.cathodesPerCell.value * A.currentDensity.value * A.cathodeArea.value * 2 * cellVoltage) / 1000; // kW
+        setExtractionOperatingLineData(generateOperatingLine(X_A1, Y_A1, X_C2, Y_C2, O_A_ADF_ex));
+        setStrippingOperatingLineData(generateOperatingLine(X_C2_st, Y_C2_st, X_A1_st, Y_A1_st, O_A_ADF_st));
 
 
-            // Consumables
-            const annualAcidTon = (annualOreFeed * A.acidConsumption.value) / 1000;
-            const dailyAcidTon = annualAcidTon / A.operatingDays.value;
-            
-            // 3. Display Results
-            document.getElementById('summary').innerHTML = 
-                createResultCard('خوراک سالانه کانسنگ مورد نیاز', annualOreFeed, 'تن') +
-                createResultCard('مس قابل استخراج در کانسنگ', requiredCopperInOre, 'تن در سال') +
-                createResultCard('راندمان کلی فرآیند', totalRecovery * 100, '%');
-
-            document.getElementById('crushing').innerHTML =
-                createResultCard('ظرفیت ساعتی سنگ‌شکن', crusherHourlyCapacity, 'تن در ساعت') +
-                createResultCard('حجم روزانه دپوی کانسنگ', dailyOreVolume, 'متر مکعب') +
-                createResultCard('مساحت کل زیرسازی هیپ', totalAreaUnderLeach, 'متر مربع (هکتار: ' + formatNum(totalAreaUnderLeach/10000) + ')');
-
-            document.getElementById('sxew').innerHTML =
-                createResultCard('جریان محلول باردار (PLS)', plsFlowRateM3PH, 'متر مکعب در ساعت') +
-                createResultCard('تعداد کل کاتدها', totalCathodes, 'عدد') +
-                createResultCard('تعداد سلول‌های الکترووینینگ', ewCells, 'عدد') +
-                createResultCard('ظرفیت رکتیفایر (تقریبی)', rectifierPowerFinal, 'کیلووات (kW)');
-
-            document.getElementById('consumables').innerHTML =
-                createResultCard('مصرف سالانه اسید سولفوریک', annualAcidTon, 'تن') +
-                createResultCard('مصرف روزانه اسید سولفوریک', dailyAcidTon, 'تن');
-
-            resultsDiv.classList.remove('hidden');
-        }
-        
-        // --- Tab Switching Logic ---
-        const tabsContainer = document.getElementById('tabs');
-        const tabContentContainer = document.getElementById('tab-content-container');
-        tabsContainer.addEventListener('click', (e) => {
-            if (e.target.classList.contains('tab-btn')) {
-                tabsContainer.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-                tabContentContainer.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-                e.target.classList.add('active');
-                const tabName = e.target.getAttribute('data-tab');
-                document.getElementById(tabName).classList.add('active');
-            }
+        setResults({
+            organicFlow,
+            amlp,
+            ml,
+            Y_A1, X_A1, Y_D1, X_D1, Y_B1, X_B1, Y_C1, X_C1,
+            eff_or_e1, eff_e1_constraint,
+            Y_A2, X_A2, Y_D2, X_D2, Y_B2, X_B2, Y_C2, X_C2,
+            eff_or_e2, eff_e2_constraint,
+            acRaff, rCuEx,
+            O_A_ADF_st,
+            X_A1_st, Y_A1_st, Y_D1_st, X_D1_st, Y_B1_st, X_B1_st, Y_C1_st, X_C1_st,
+            eff_or_s1, eff_s1_constraint,
+            X_A2_st, Y_A2_st, Y_D2_st, X_D2_st, Y_B2_st, X_B2_st, Y_C2_st, X_C2_st,
+            eff_or_s2, eff_s2_constraint,
+            rCuSt, netCu,
+            setObjectiveConstraint,
         });
+    }, [
+        plsFlow, cuPls, acPls, percentML, oaAdfEx, eff1Ex, eff2Ex,
+        cuSp, acSp, cuAd, eff1St, eff2St,
+        extractantVolumePercent, yd1ExSolver, yd2ExSolver, yd1StSolver, yd2StSolver
+    ]);
 
-        calculateBtn.addEventListener('click', performCalculations);
-        window.onload = populateAssumptions;
-    </script>
-</body>
-</html>
+    useEffect(() => {
+        calculateAll();
+    }, [calculateAll]);
 
-نکات کلیدی و تغییرات اعمال شده
- * منطق معکوس (مبتنی بر تولید): محاسبات از هدف نهایی (تولید کاتد) آغاز می‌شود. با در نظر گرفتن راندمان‌های لیچینگ و SX/EW، میزان مس مورد نیاز در خوراک و در نتیجه، حجم کل کانسنگ لازم برای رسیدن به آن هدف تولیدی محاسبه می‌گردد.
- * سلول‌های الکترووینینگ استاندارد: تعداد سلول‌ها دقیقاً بر اساس فرض 30 کاتد در هر سلول محاسبه می‌شود که مطابق با درخواست شما و استانداردهای رایج صنعتی است.
- * جریان محلول (PLS): دبی محلول باردار (PLS) دیگر یک فرض ثابت نیست، بلکه بر اساس میزان مس که باید روزانه از هیپ به کارخانه SX منتقل شود و اختلاف غلظت مس در محلول ورودی (PLS) و خروجی (رافینت) محاسبه می‌گردد. این رویکرد بسیار دقیق‌تر است.
- * به‌روزرسانی مفروضات: پارامترهایی مانند عیار مس در رافینت به مفروضات اضافه شده و مقادیر دیگر (مانند نرخ پاشش و چرخه لیچینگ) برای انطباق با سناریوهای واقعی بهینه‌سازی شده‌اند.
- * دسته‌بندی جدید نتایج: نتایج در تب‌های منطقی‌تری سازماندهی شده‌اند تا تحلیل داده‌ها ساده‌تر باشد:
-   * خلاصه فرآیند: نمایش میزان خوراک مورد نیاز برای رسیدن به تولید هدف.
-   * سنگ‌شکنی و هیپ: ابعاد و ظرفیت‌های بخش آماده‌سازی و دپوی ماده معدنی.
-   * کارخانه SX/EW: مشخصات کلیدی بخش فرآوری محلول و تولید کاتد.
-   * مواد مصرفی: برآورد نیاز به مواد شیمیایی اصلی بر اساس حجم واقعی کانسنگ.
-این نسخه از ماشین حساب، ابزار قدرتمندتری برای مطالعات امکان‌سنجی (Feasibility Study) و طراحی مفهومی (Conceptual Design) در اختیار شما قرار می‌دهد. امیدوارم این مدل جدید، نیازهای شما را به شکل کامل‌تری پوشش دهد.
+    const renderInputSection = (title, inputs) => (
+        <div className="p-4 bg-gray-100 rounded-lg shadow-md mb-6">
+            <h2 className="text-xl font-semibold mb-4 text-gray-800">{title}</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {inputs.map((input, index) => (
+                    <div key={index} className="flex flex-col">
+                        <label htmlFor={input.id} className="text-sm font-medium text-gray-700 mb-1">
+                            {input.label}
+                        </label>
+                        <input
+                            type="number"
+                            id={input.id}
+                            value={input.value}
+                            onChange={(e) => input.setter(parseFloat(e.target.value))}
+                            className="p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                            step={input.step || "any"}
+                        />
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+
+    const renderResultsSection = (title, data) => (
+        <div className="p-4 bg-white rounded-lg shadow-md mb-6">
+            <h2 className="text-xl font-semibold mb-4 text-gray-800">{title}</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {Object.entries(data).map(([key, value]) => (
+                    <div key={key} className="flex flex-col">
+                        <span className="text-sm font-medium text-gray-700">{key}:</span>
+                        <span className="text-lg font-bold text-blue-700">
+                            {typeof value === 'number' ? value.toFixed(3) : value}
+                        </span>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+
+    const renderStageResults = (stageName, stageData) => (
+        <div className="p-4 bg-white rounded-lg shadow-md mb-6">
+            <h3 className="text-lg font-semibold mb-3 text-gray-800">{stageName}</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {Object.entries(stageData).map(([key, value]) => (
+                    <div key={key} className="flex flex-col">
+                        <span className="text-sm font-medium text-gray-700">{key}:</span>
+                        <span className="text-lg font-bold text-blue-700">
+                            {typeof value === 'number' ? value.toFixed(3) : value}
+                        </span>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+
+
+    return (
+        <div className="min-h-screen bg-gray-50 p-4 font-sans text-gray-900 antialiased">
+            <script src="https://cdn.tailwindcss.com"></script>
+            <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+
+            <style>{`
+                body {
+                    font-family: 'Inter', sans-serif;
+                }
+                .recharts-wrapper {
+                    border-radius: 0.5rem;
+                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                }
+            `}</style>
+
+            <h1 className="text-3xl font-bold text-center text-blue-800 mb-8">
+                شبیه‌ساز و بهینه‌ساز استخراج مس با حلال (SX)
+            </h1>
+
+            <div className="max-w-6xl mx-auto">
+                {renderInputSection("داده‌های ورودی استخراج (Extraction Data)", [
+                    { id: "plsFlow", label: "دبی PLS (m³/h)", value: plsFlow, setter: setPlsFlow },
+                    { id: "cuPls", label: "غلظت مس در PLS (g/L)", value: cuPls, setter: setCuPls },
+                    { id: "acPls", label: "غلظت اسید در PLS (g/L)", value: acPls, setter: setAcPls },
+                    { id: "percentML", label: "درصد اشباع (ML%)", value: percentML, setter: setPercentML },
+                    { id: "oaAdfEx", label: "نسبت O/A پیشروی (استخراج)", value: oaAdfEx, setter: setOaAdfEx, step: 0.01 },
+                    { id: "eff1Ex", label: "بازدهی مرحله 1 استخراج (%)", value: eff1Ex, setter: setEff1Ex },
+                    { id: "eff2Ex", label: "بازدهی مرحله 2 استخراج (%)", value: eff2Ex, setter: setEff2Ex },
+                ])}
+
+                {renderInputSection("داده‌های ورودی جداسازی (Stripping Data)", [
+                    { id: "cuSp", label: "غلظت مس در الکترولیت مصرفی (g/L)", value: cuSp, setter: setCuSp },
+                    { id: "acSp", label: "غلظت اسید در الکترولیت مصرفی (g/L)", value: acSp, setter: setAcSp },
+                    { id: "cuAd", label: "غلظت مس در الکترولیت پیشرو (g/L)", value: cuAd, setter: setCuAd },
+                    { id: "eff1St", label: "بازدهی مرحله 1 جداسازی (%)", value: eff1St, setter: setEff1St },
+                    { id: "eff2St", label: "بازدهی مرحله 2 جداسازی (%)", value: eff2St, setter: setEff2St },
+                ])}
+
+                {renderInputSection("متغیرهای Solver (تنظیم دستی برای بهینه‌سازی)", [
+                    { id: "extractantVolumePercent", label: "درصد حجمی استخراج‌کننده (V%)", value: extractantVolumePercent, setter: setExtractantVolumePercent, step: 0.01 },
+                    { id: "yd1ExSolver", label: "Y_D1 استخراج (g/L)", value: yd1ExSolver, setter: setYd1ExSolver, step: 0.001 },
+                    { id: "yd2ExSolver", label: "Y_D2 استخراج (g/L)", value: yd2ExSolver, setter: setYd2ExSolver, step: 0.001 },
+                    { id: "yd1StSolver", label: "Y_D1 جداسازی (g/L)", value: yd1StSolver, setter: setYd1StSolver, step: 0.001 },
+                    { id: "yd2StSolver", label: "Y_D2 جداسازی (g/L)", value: yd2StSolver, setter: setYd2StSolver, step: 0.001 },
+                ])}
+
+                {results.organicFlow && (
+                    <>
+                        <div className="p-4 bg-blue-50 rounded-lg shadow-md mb-6">
+                            <h2 className="text-xl font-semibold mb-4 text-blue-800">نتایج کلی</h2>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                <div className="flex flex-col">
+                                    <span className="text-sm font-medium text-gray-700">دبی آلی (m³/h):</span>
+                                    <span className="text-lg font-bold text-blue-700">{results.organicFlow.toFixed(3)}</span>
+                                </div>
+                                <div className="flex flex-col">
+                                    <span className="text-sm font-medium text-gray-700">حداکثر بارگذاری پیش‌بینی‌شده (AMLp) (g/L):</span>
+                                    <span className="text-lg font-bold text-blue-700">{results.amlp.toFixed(3)}</span>
+                                </div>
+                                <div className="flex flex-col">
+                                    <span className="text-sm font-medium text-gray-700">حداکثر بارگذاری (ML) (g/L):</span>
+                                    <span className="text-lg font-bold text-blue-700">{results.ml.toFixed(3)}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {renderStageResults("نتایج مرحله 1 استخراج (E1)", {
+                            "X_A1 (g/L)": results.X_A1,
+                            "Y_A1 (g/L)": results.Y_A1,
+                            "X_D1 (g/L)": results.X_D1,
+                            "Y_D1 (g/L)": results.Y_D1,
+                            "X_B1 (g/L)": results.X_B1,
+                            "Y_B1 (g/L)": results.Y_B1,
+                            "X_C1 (g/L)": results.X_C1,
+                            "Y_C1 (g/L)": results.Y_C1,
+                            "بازدهی مرحله آلی E1 (%)": results.eff_or_e1,
+                            "محدودیت بازدهی E1 (Error)": results.eff_e1_constraint,
+                        })}
+
+                        {renderStageResults("نتایج مرحله 2 استخراج (E2)", {
+                            "X_A2 (g/L)": results.X_A2,
+                            "Y_A2 (g/L)": results.Y_A2,
+                            "X_D2 (g/L)": results.X_D2,
+                            "Y_D2 (g/L)": results.Y_D2,
+                            "X_B2 (g/L)": results.X_B2,
+                            "Y_B2 (g/L)": results.Y_B2,
+                            "X_C2 (g/L)": results.X_C2,
+                            "Y_C2 (g/L)": results.Y_C2,
+                            "بازدهی مرحله آلی E2 (%)": results.eff_or_e2,
+                            "محدودیت بازدهی E2 (Error)": results.eff_e2_constraint,
+                        })}
+
+                        {renderResultsSection("عملکرد استخراج", {
+                            "غلظت اسید رافینیت (g/L)": results.acRaff,
+                            "بازدهی استخراج مس (%)": results.rCuEx,
+                        })}
+
+                        {renderStageResults("نتایج مرحله 1 جداسازی (S1)", {
+                            "نسبت O/A پیشروی (جداسازی)": results.O_A_ADF_st,
+                            "X_A1_st (g/L)": results.X_A1_st,
+                            "Y_A1_st (g/L)": results.Y_A1_st,
+                            "X_D1_st (g/L)": results.X_D1_st,
+                            "Y_D1_st (g/L)": results.Y_D1_st,
+                            "X_B1_st (g/L)": results.X_B1_st,
+                            "Y_B1_st (g/L)": results.Y_B1_st,
+                            "X_C1_st (g/L)": results.X_C1_st,
+                            "Y_C1_st (g/L)": results.Y_C1_st,
+                            "بازدهی مرحله آلی S1 (%)": results.eff_or_s1,
+                            "محدودیت بازدهی S1 (Error)": results.eff_s1_constraint,
+                        })}
+
+                        {renderStageResults("نتایج مرحله 2 جداسازی (S2)", {
+                            "X_A2_st (g/L)": results.X_A2_st,
+                            "Y_A2_st (g/L)": results.Y_A2_st,
+                            "X_D2_st (g/L)": results.X_D2_st,
+                            "Y_D2_st (g/L)": results.Y_D2_st,
+                            "X_B2_st (g/L)": results.X_B2_st,
+                            "Y_B2_st (g/L)": results.Y_B2_st,
+                            "X_C2_st (g/L)": results.X_C2_st,
+                            "Y_C2_st (g/L)": results.Y_C2_st,
+                            "بازدهی مرحله آلی S2 (%)": results.eff_or_s2,
+                            "محدودیت بازدهی S2 (Error)": results.eff_s2_constraint,
+                        })}
+
+                        {renderResultsSection("عملکرد جداسازی", {
+                            "بازدهی جداسازی مس (%)": results.rCuSt,
+                            "انتقال خالص مس ((g/L)/1V%)": results.netCu,
+                        })}
+
+                        <div className="p-4 bg-red-100 rounded-lg shadow-md mb-6">
+                            <h2 className="text-xl font-semibold mb-4 text-red-800">هدف Solver</h2>
+                            <div className="flex flex-col">
+                                <span className="text-sm font-medium text-gray-700">Y_C2_ex - Y_C2_st (Error):</span>
+                                <span className="text-lg font-bold text-red-700">{results.setObjectiveConstraint.toFixed(3)}</span>
+                                <p className="text-sm text-gray-600 mt-2">
+                                    این مقدار باید نزدیک به صفر باشد. متغیرهای Solver را برای به حداقل رساندن این خطا تنظیم کنید.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="p-4 bg-white rounded-lg shadow-md mb-6">
+                            <h2 className="text-xl font-semibold mb-4 text-gray-800">نمودار McCabe-Thiele استخراج</h2>
+                            <ResponsiveContainer width="100%" height={400}>
+                                <LineChart
+                                    margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                                >
+                                    <CartesianGrid strokeDasharray="3 3" />
+                                    <XAxis
+                                        dataKey="x"
+                                        type="number"
+                                        domain={[0, results.X_A1 * 1.2]}
+                                        label={{ value: "فاز آبی: مس (g/L)", position: "insideBottom", offset: -5 }}
+                                    />
+                                    <YAxis
+                                        dataKey="y"
+                                        type="number"
+                                        domain={[0, results.Y_A1 * 1.2]}
+                                        label={{ value: "فاز آلی: مس (g/L)", angle: -90, position: "insideLeft" }}
+                                    />
+                                    <Tooltip />
+                                    <Legend />
+                                    <Line
+                                        type="monotone"
+                                        data={extractionIsothermData}
+                                        dataKey="y"
+                                        name="منحنی تعادل"
+                                        stroke="#8884d8"
+                                        dot={false}
+                                        isAnimationActive={false}
+                                    />
+                                    <Line
+                                        type="linear"
+                                        data={extractionOperatingLineData}
+                                        dataKey="y"
+                                        name="خط عملیاتی"
+                                        stroke="#82ca9d"
+                                        strokeDasharray="5 5"
+                                        dot={false}
+                                        isAnimationActive={false}
+                                    />
+                                     {/* Plotting points A1, B1, C1, D1, A2, B2, C2, D2 */}
+                                     <Line
+                                        type="scatter"
+                                        data={[{x: results.X_A1, y: results.Y_A1}]}
+                                        dataKey="y"
+                                        name="A1"
+                                        stroke="red"
+                                        fill="red"
+                                        shape="circle"
+                                        isAnimationActive={false}
+                                        legendType="none"
+                                    />
+                                    <Line
+                                        type="scatter"
+                                        data={[{x: results.X_B1, y: results.Y_B1}]}
+                                        dataKey="y"
+                                        name="B1"
+                                        stroke="blue"
+                                        fill="blue"
+                                        shape="circle"
+                                        isAnimationActive={false}
+                                        legendType="none"
+                                    />
+                                    <Line
+                                        type="scatter"
+                                        data={[{x: results.X_C1, y: results.Y_C1}]}
+                                        dataKey="y"
+                                        name="C1"
+                                        stroke="green"
+                                        fill="green"
+                                        shape="circle"
+                                        isAnimationActive={false}
+                                        legendType="none"
+                                    />
+                                    <Line
+                                        type="scatter"
+                                        data={[{x: results.X_D1, y: results.Y_D1}]}
+                                        dataKey="y"
+                                        name="D1"
+                                        stroke="orange"
+                                        fill="orange"
+                                        shape="circle"
+                                        isAnimationActive={false}
+                                        legendType="none"
+                                    />
+                                    <Line
+                                        type="scatter"
+                                        data={[{x: results.X_A2, y: results.Y_A2}]}
+                                        dataKey="y"
+                                        name="A2"
+                                        stroke="purple"
+                                        fill="purple"
+                                        shape="circle"
+                                        isAnimationActive={false}
+                                        legendType="none"
+                                    />
+                                    <Line
+                                        type="scatter"
+                                        data={[{x: results.X_B2, y: results.Y_B2}]}
+                                        dataKey="y"
+                                        name="B2"
+                                        stroke="brown"
+                                        fill="brown"
+                                        shape="circle"
+                                        isAnimationActive={false}
+                                        legendType="none"
+                                    />
+                                     <Line
+                                        type="scatter"
+                                        data={[{x: results.X_C2, y: results.Y_C2}]}
+                                        dataKey="y"
+                                        name="C2"
+                                        stroke="pink"
+                                        fill="pink"
+                                        shape="circle"
+                                        isAnimationActive={false}
+                                        legendType="none"
+                                    />
+                                     <Line
+                                        type="scatter"
+                                        data={[{x: results.X_D2, y: results.Y_D2}]}
+                                        dataKey="y"
+                                        name="D2"
+                                        stroke="cyan"
+                                        fill="cyan"
+                                        shape="circle"
+                                        isAnimationActive={false}
+                                        legendType="none"
+                                    />
+                                </LineChart>
+                            </ResponsiveContainer>
+                        </div>
+
+                        <div className="p-4 bg-white rounded-lg shadow-md mb-6">
+                            <h2 className="text-xl font-semibold mb-4 text-gray-800">نمودار McCabe-Thiele جداسازی</h2>
+                            <ResponsiveContainer width="100%" height={400}>
+                                <LineChart
+                                    margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                                >
+                                    <CartesianGrid strokeDasharray="3 3" />
+                                    <XAxis
+                                        dataKey="x"
+                                        type="number"
+                                        domain={[28, results.X_A1_st * 1.2]}
+                                        label={{ value: "فاز آبی: مس (g/L)", position: "insideBottom", offset: -5 }}
+                                    />
+                                    <YAxis
+                                        dataKey="y"
+                                        type="number"
+                                        domain={[0, results.Y_A1_st * 1.2]}
+                                        label={{ value: "فاز آلی: مس (g/L)", angle: -90, position: "insideLeft" }}
+                                    />
+                                    <Tooltip />
+                                    <Legend />
+                                    <Line
+                                        type="monotone"
+                                        data={strippingIsothermData}
+                                        dataKey="y"
+                                        name="منحنی تعادل"
+                                        stroke="#8884d8"
+                                        dot={false}
+                                        isAnimationActive={false}
+                                    />
+                                    <Line
+                                        type="linear"
+                                        data={strippingOperatingLineData}
+                                        dataKey="y"
+                                        name="خط عملیاتی"
+                                        stroke="#82ca9d"
+                                        strokeDasharray="5 5"
+                                        dot={false}
+                                        isAnimationActive={false}
+                                    />
+                                     {/* Plotting points A1_st, B1_st, C1_st, D1_st, A2_st, B2_st, C2_st, D2_st */}
+                                     <Line
+                                        type="scatter"
+                                        data={[{x: results.X_A1_st, y: results.Y_A1_st}]}
+                                        dataKey="y"
+                                        name="A1_st"
+                                        stroke="red"
+                                        fill="red"
+                                        shape="circle"
+                                        isAnimationActive={false}
+                                        legendType="none"
+                                    />
+                                    <Line
+                                        type="scatter"
+                                        data={[{x: results.X_B1_st, y: results.Y_B1_st}]}
+                                        dataKey="y"
+                                        name="B1_st"
+                                        stroke="blue"
+                                        fill="blue"
+                                        shape="circle"
+                                        isAnimationActive={false}
+                                        legendType="none"
+                                    />
+                                    <Line
+                                        type="scatter"
+                                        data={[{x: results.X_C1_st, y: results.Y_C1_st}]}
+                                        dataKey="y"
+                                        name="C1_st"
+                                        stroke="green"
+                                        fill="green"
+                                        shape="circle"
+                                        isAnimationActive={false}
+                                        legendType="none"
+                                    />
+                                    <Line
+                                        type="scatter"
+                                        data={[{x: results.X_D1_st, y: results.Y_D1_st}]}
+                                        dataKey="y"
+                                        name="D1_st"
+                                        stroke="orange"
+                                        fill="orange"
+                                        shape="circle"
+                                        isAnimationActive={false}
+                                        legendType="none"
+                                    />
+                                    <Line
+                                        type="scatter"
+                                        data={[{x: results.X_A2_st, y: results.Y_A2_st}]}
+                                        dataKey="y"
+                                        name="A2_st"
+                                        stroke="purple"
+                                        fill="purple"
+                                        shape="circle"
+                                        isAnimationActive={false}
+                                        legendType="none"
+                                    />
+                                    <Line
+                                        type="scatter"
+                                        data={[{x: results.X_B2_st, y: results.Y_B2_st}]}
+                                        dataKey="y"
+                                        name="B2_st"
+                                        stroke="brown"
+                                        fill="brown"
+                                        shape="circle"
+                                        isAnimationActive={false}
+                                        legendType="none"
+                                    />
+                                     <Line
+                                        type="scatter"
+                                        data={[{x: results.X_C2_st, y: results.Y_C2_st}]}
+                                        dataKey="y"
+                                        name="C2_st"
+                                        stroke="pink"
+                                        fill="pink"
+                                        shape="circle"
+                                        isAnimationActive={false}
+                                        legendType="none"
+                                    />
+                                     <Line
+                                        type="scatter"
+                                        data={[{x: results.X_D2_st, y: results.Y_D2_st}]}
+                                        dataKey="y"
+                                        name="D2_st"
+                                        stroke="cyan"
+                                        fill="cyan"
+                                        shape="circle"
+                                        isAnimationActive={false}
+                                        legendType="none"
+                                    />
+                                </LineChart>
+                            </ResponsiveContainer>
+                        </div>
+                    </>
+                )}
+            </div>
+        </div>
+    );
+};
+
+export default App;
